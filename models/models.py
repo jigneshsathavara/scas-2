@@ -5,7 +5,7 @@ from datetime import datetime
 db = SQLAlchemy()
 
 class User(db.Model):
-    __tablename__ = 'users'
+    __tablename__ = 'scas_users'
     
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -26,7 +26,7 @@ class User(db.Model):
         return check_password_hash(self.password_hash, password)
 
 class Course(db.Model):
-    __tablename__ = 'courses'
+    __tablename__ = 'scas_courses'
     
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -39,11 +39,11 @@ class Course(db.Model):
     students = db.relationship('StudentProfile', backref='course', cascade="all, delete-orphan")
 
 class Batch(db.Model):
-    __tablename__ = 'batches'
+    __tablename__ = 'scas_batches'
     
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)  # e.g., 'MCA 2024-2026'
-    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
+    course_id = db.Column(db.Integer, db.ForeignKey('scas_courses.id'), nullable=False)
     year = db.Column(db.Integer, nullable=False)     # e.g., 2026
     
     # Relationships
@@ -51,21 +51,21 @@ class Batch(db.Model):
     schedules = db.relationship('Schedule', backref='batch', cascade="all, delete-orphan")
 
 class FacultyProfile(db.Model):
-    __tablename__ = 'faculty_profiles'
+    __tablename__ = 'scas_faculty_profiles'
     
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('scas_users.id'), nullable=False)
     department = db.Column(db.String(100), nullable=False)
     designation = db.Column(db.String(100), nullable=False)
 
 class StudentProfile(db.Model):
-    __tablename__ = 'student_profiles'
+    __tablename__ = 'scas_student_profiles'
     
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('scas_users.id'), nullable=False)
     roll_no = db.Column(db.String(30), unique=True, nullable=False)
-    batch_id = db.Column(db.Integer, db.ForeignKey('batches.id'), nullable=False)
-    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
+    batch_id = db.Column(db.Integer, db.ForeignKey('scas_batches.id'), nullable=False)
+    course_id = db.Column(db.Integer, db.ForeignKey('scas_courses.id'), nullable=False)
     phone = db.Column(db.String(20))
     
     # Relationships
@@ -74,13 +74,13 @@ class StudentProfile(db.Model):
     payments = db.relationship('FeePayment', backref='student', cascade="all, delete-orphan")
 
 class Subject(db.Model):
-    __tablename__ = 'subjects'
+    __tablename__ = 'scas_subjects'
     
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     code = db.Column(db.String(20), unique=True, nullable=False)
-    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
-    faculty_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # Link to faculty User
+    course_id = db.Column(db.Integer, db.ForeignKey('scas_courses.id'), nullable=False)
+    faculty_id = db.Column(db.Integer, db.ForeignKey('scas_users.id'), nullable=False)  # Link to faculty User
     
     # Relationships
     attendance_records = db.relationship('Attendance', backref='subject', cascade="all, delete-orphan")
@@ -88,40 +88,40 @@ class Subject(db.Model):
     schedules = db.relationship('Schedule', backref='subject', cascade="all, delete-orphan")
 
 class Schedule(db.Model):
-    __tablename__ = 'schedules'
+    __tablename__ = 'scas_schedules'
     
     id = db.Column(db.Integer, primary_key=True)
-    subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id'), nullable=False)
-    batch_id = db.Column(db.Integer, db.ForeignKey('batches.id'), nullable=False)
+    subject_id = db.Column(db.Integer, db.ForeignKey('scas_subjects.id'), nullable=False)
+    batch_id = db.Column(db.Integer, db.ForeignKey('scas_batches.id'), nullable=False)
     day_of_week = db.Column(db.String(20), nullable=False)  # 'Monday', 'Tuesday', etc.
     start_time = db.Column(db.String(10), nullable=False)   # '09:00 AM'
     end_time = db.Column(db.String(10), nullable=False)     # '10:00 AM'
     room = db.Column(db.String(20), nullable=False)
 
 class Attendance(db.Model):
-    __tablename__ = 'attendance'
+    __tablename__ = 'scas_attendance'
     
     id = db.Column(db.Integer, primary_key=True)
-    student_id = db.Column(db.Integer, db.ForeignKey('student_profiles.id'), nullable=False)
-    subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id'), nullable=False)
+    student_id = db.Column(db.Integer, db.ForeignKey('scas_student_profiles.id'), nullable=False)
+    subject_id = db.Column(db.Integer, db.ForeignKey('scas_subjects.id'), nullable=False)
     date = db.Column(db.Date, nullable=False)
     status = db.Column(db.String(10), nullable=False)  # 'Present', 'Absent'
 
 class Mark(db.Model):
-    __tablename__ = 'marks'
+    __tablename__ = 'scas_marks'
     
     id = db.Column(db.Integer, primary_key=True)
-    student_id = db.Column(db.Integer, db.ForeignKey('student_profiles.id'), nullable=False)
-    subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id'), nullable=False)
+    student_id = db.Column(db.Integer, db.ForeignKey('scas_student_profiles.id'), nullable=False)
+    subject_id = db.Column(db.Integer, db.ForeignKey('scas_subjects.id'), nullable=False)
     exam_type = db.Column(db.String(30), nullable=False)  # 'Midterm 1', 'Midterm 2', 'Final Exam', 'Assignment'
     marks_obtained = db.Column(db.Float, nullable=False)
     max_marks = db.Column(db.Float, nullable=False)
 
 class FeePayment(db.Model):
-    __tablename__ = 'fee_payments'
+    __tablename__ = 'scas_fee_payments'
     
     id = db.Column(db.Integer, primary_key=True)
-    student_id = db.Column(db.Integer, db.ForeignKey('student_profiles.id'), nullable=False)
+    student_id = db.Column(db.Integer, db.ForeignKey('scas_student_profiles.id'), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     payment_date = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String(20), nullable=False)  # 'Paid', 'Pending'
