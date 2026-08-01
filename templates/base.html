@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart College Analytics System</title>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- ChartJS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <div class="toast-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="toast-alert {{ category }}">
+                        <i data-lucide="{% if category == 'success' %}check-circle{% elif category == 'danger' %}alert-circle{% else %}info{% endif %}"></i>
+                        <span>{{ message }}</span>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <i data-lucide="graduation-cap"></i>
+                <span>Smart College</span>
+            </div>
+            
+            <ul class="sidebar-menu">
+                {% if session.get('role') == 'admin' %}
+                    <li class="sidebar-item {% if 'admin/dashboard' in request.path %}active{% endif %}">
+                        <a href="{{ url_for('admin.dashboard') }}">
+                            <i data-lucide="layout-dashboard"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item {% if 'admin/users' in request.path %}active{% endif %}">
+                        <a href="{{ url_for('admin.users') }}">
+                            <i data-lucide="users"></i>
+                            <span>Manage Users</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item {% if 'admin/courses' in request.path %}active{% endif %}">
+                        <a href="{{ url_for('admin.courses') }}">
+                            <i data-lucide="book-open"></i>
+                            <span>Academic Setup</span>
+                        </a>
+                    </li>
+                {% elif session.get('role') == 'faculty' %}
+                    <li class="sidebar-item {% if 'faculty/dashboard' in request.path %}active{% endif %}">
+                        <a href="{{ url_for('faculty.dashboard') }}">
+                            <i data-lucide="layout-dashboard"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item {% if 'faculty/attendance' in request.path %}active{% endif %}">
+                        <a href="{{ url_for('faculty.attendance') }}">
+                            <i data-lucide="calendar-check"></i>
+                            <span>Mark Attendance</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item {% if 'faculty/marks' in request.path %}active{% endif %}">
+                        <a href="{{ url_for('faculty.marks') }}">
+                            <i data-lucide="award"></i>
+                            <span>Upload Marks</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item {% if 'faculty/schedule' in request.path %}active{% endif %}">
+                        <a href="{{ url_for('faculty.schedule') }}">
+                            <i data-lucide="clock"></i>
+                            <span>Lecture Schedule</span>
+                        </a>
+                    </li>
+                {% elif session.get('role') == 'student' %}
+                    <li class="sidebar-item {% if 'student/dashboard' in request.path %}active{% endif %}">
+                        <a href="{{ url_for('student.dashboard') }}">
+                            <i data-lucide="layout-dashboard"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item {% if 'student/academic' in request.path %}active{% endif %}">
+                        <a href="{{ url_for('student.academic') }}">
+                            <i data-lucide="book-open-check"></i>
+                            <span>My Academics</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item {% if 'student/payment' in request.path %}active{% endif %}">
+                        <a href="{{ url_for('student.payment') }}">
+                            <i data-lucide="credit-card"></i>
+                            <span>Fees & Payments</span>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+            
+            <div class="sidebar-footer">
+                <ul class="sidebar-menu">
+                    <li class="sidebar-item">
+                        <a href="{{ url_for('auth.logout') }}" style="color: var(--color-danger);">
+                            <i data-lucide="log-out"></i>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+        
+        <!-- Main Content Area -->
+        <div class="main-wrapper">
+            <header class="header">
+                <div class="header-search">
+                    <i data-lucide="search"></i>
+                    <input type="text" placeholder="Search analytics metrics...">
+                </div>
+                
+                <div class="header-actions">
+                    <!-- Theme Toggle -->
+                    <button id="theme-toggle-btn" class="theme-toggle-btn" title="Switch Theme">
+                        <i data-lucide="sun"></i>
+                    </button>
+                    
+                    <!-- Profile Information -->
+                    <div class="user-profile-widget">
+                        <div class="user-avatar">
+                            {{ session.get('name')[0] if session.get('name') else 'U' }}
+                        </div>
+                        <div class="user-meta">
+                            <span class="user-name">{{ session.get('name') }}</span>
+                            <span class="user-role">{{ session.get('role') }}</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <main class="content-body">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <!-- Custom Common JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        // Initialize all lucide icons
+        lucide.createIcons();
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

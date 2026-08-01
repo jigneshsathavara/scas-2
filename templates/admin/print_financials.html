@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fee Collections Audit Report - Smart College Analytics System</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 2rem;
+            color: #1e293b;
+            background: white;
+        }
+        .report-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            border-bottom: 2px solid #0f172a;
+            padding-bottom: 1.5rem;
+        }
+        .report-header h1 {
+            margin: 0;
+            font-size: 2rem;
+            color: #0f172a;
+        }
+        .report-header p {
+            margin: 6px 0 0;
+            color: #64748b;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+        .report-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            border: 1px solid #cbd5e1;
+            padding: 12px;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+        th {
+            background-color: #f1f5f9;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .badge-paid { background-color: #dcfce7; color: #166534; border: 1px solid #86efac; }
+        .badge-pending { background-color: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+        @media print {
+            body { padding: 0; }
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="report-header">
+        <h1>Smart College Analytics System</h1>
+        <p>Tuition Fee Collections & Transactional Ledger Audit Report</p>
+    </div>
+    
+    <div class="report-meta">
+        <div><strong>Run Date:</strong> <span id="currentDate"></span></div>
+        <div><strong>Ledger Category:</strong> All Tuition Payments</div>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Receipt No</th>
+                <th>Student Name</th>
+                <th>Roll Number</th>
+                <th>Course</th>
+                <th>Amount Paid</th>
+                <th>Payment Date</th>
+                <th>Status</th>
+                <th>Transaction Code</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in payments %}
+            <tr>
+                <td><code>{{ p.receipt_no }}</code></td>
+                <td style="font-weight: 600;">{{ p.student.user.name }}</td>
+                <td><code>{{ p.student.roll_no }}</code></td>
+                <td>{{ p.student.course.code }}</td>
+                <td style="font-weight: 700;">₹{{ "{:,.2f}".format(p.amount) }}</td>
+                <td>{{ p.payment_date.strftime('%Y-%m-%d %H:%M') if p.payment_date else 'N/A' }}</td>
+                <td>
+                    {% if p.status == 'Paid' %}
+                    <span class="badge badge-paid">Paid</span>
+                    {% else %}
+                    <span class="badge badge-pending">Pending</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if p.transaction_id %}
+                    <code>{{ p.transaction_id }}</code>
+                    {% else %}
+                    <span style="color: #64748b; font-size: 0.85rem;">N/A</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        document.getElementById('currentDate').textContent = new Date().toLocaleString();
+        window.onload = function() {
+            window.print();
+        }
+    </script>
+</body>
+</html>

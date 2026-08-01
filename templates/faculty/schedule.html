@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="panel-header">
+    <div>
+        <h2 class="panel-title" style="font-size: 1.5rem; font-weight: 700;">Lecture Time-Table Planner</h2>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.25rem;">Schedule, modify and review class schedules and classroom locations</p>
+    </div>
+</div>
+
+<div class="chart-grid" style="grid-template-columns: 2fr 1fr;">
+    <!-- Active Timetable Grid -->
+    <div class="panel">
+        <div class="panel-header">
+            <h3 class="panel-title">Your Active Schedule</h3>
+            <span class="badge badge-info">Current Semester</span>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Day of Week</th>
+                        <th>Lecture Timing</th>
+                        <th>Subject Title</th>
+                        <th>Classroom / Lab</th>
+                        <th>Batch Group</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in schedules %}
+                    <tr>
+                        <td style="font-weight: 600;">{{ s.day_of_week }}</td>
+                        <td>
+                            <div style="font-weight: 500;">{{ s.start_time }} - {{ s.end_time }}</div>
+                        </td>
+                        <td>
+                            <div style="font-weight: 600;">{{ s.subject.name }}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Code: {{ s.subject.code }}</div>
+                        </td>
+                        <td><code>{{ s.room }}</code></td>
+                        <td><span class="badge badge-info" style="background: rgba(6, 182, 212, 0.12);">{{ s.batch.name }}</span></td>
+                        <td>
+                            <form action="{{ url_for('faculty.schedule') }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel and delete this scheduled lecture?');">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="schedule_id" value="{{ s.id }}">
+                                <button type="submit" class="btn btn-danger" style="padding: 0.35rem 0.5rem; font-size: 0.75rem; background: var(--color-danger);">
+                                    <i data-lucide="trash-2" style="width: 12px; height: 12px;"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--text-secondary); padding: 2rem;">No schedules created. Use the form on the right to set up a lecture.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Scheduling Form Panel -->
+    <div class="panel">
+        <div class="panel-header">
+            <h3 class="panel-title">Add Schedule Slot</h3>
+            <i data-lucide="plus-circle" style="color: var(--accent-primary);"></i>
+        </div>
+        
+        <form action="{{ url_for('faculty.schedule') }}" method="POST">
+            <input type="hidden" name="action" value="add">
+            
+            <div class="form-group">
+                <label for="schedSubject" class="form-label">Subject</label>
+                <select name="subject_id" id="schedSubject" class="form-control" required>
+                    {% for s in subjects %}
+                    <option value="{{ s.id }}">{{ s.name }} ({{ s.code }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="schedBatch" class="form-label">Batch Group</label>
+                <select name="batch_id" id="schedBatch" class="form-control" required>
+                    {% for b in batches %}
+                    <option value="{{ b.id }}">{{ b.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="schedDay" class="form-label">Day of Week</label>
+                <select name="day_of_week" id="schedDay" class="form-control" required>
+                    <option value="Monday">Monday</option>
+                    <option value="Tuesday">Tuesday</option>
+                    <option value="Wednesday">Wednesday</option>
+                    <option value="Thursday">Thursday</option>
+                    <option value="Friday">Friday</option>
+                    <option value="Saturday">Saturday</option>
+                </select>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                <div class="form-group">
+                    <label for="schedStart" class="form-label">Start Time</label>
+                    <input type="text" name="start_time" id="schedStart" class="form-control" required placeholder="09:00 AM">
+                </div>
+                <div class="form-group">
+                    <label for="schedEnd" class="form-label">End Time</label>
+                    <input type="text" name="end_time" id="schedEnd" class="form-control" required placeholder="11:00 AM">
+                </div>
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label for="schedRoom" class="form-label">Classroom / Lab ID</label>
+                <input type="text" name="room" id="schedRoom" class="form-control" required placeholder="L-201 or Lab 3">
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.8rem;">
+                <i data-lucide="plus"></i>
+                <span>Publish Schedule</span>
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

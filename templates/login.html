@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Smart College Analytics System</title>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .login-illustration {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+        .demo-credentials {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        .demo-credentials p {
+            margin-bottom: 0.25rem;
+        }
+        .demo-credentials strong {
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body class="login-container">
+    <div class="toast-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="toast-alert {{ category }}">
+                        <i data-lucide="{% if category == 'success' %}check-circle{% elif category == 'danger' %}alert-circle{% else %}info{% endif %}"></i>
+                        <span>{{ message }}</span>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="login-card">
+        <div class="login-header">
+            <div class="login-illustration">
+                <i data-lucide="graduation-cap" style="width:64px; height:64px;"></i>
+            </div>
+            <h2>Portal Sign In</h2>
+            <p>Smart College AI & Data Analytics Portal</p>
+        </div>
+        
+        <form action="{{ url_for('auth.login') }}" method="POST">
+            <div class="form-group">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" id="username" name="username" class="form-control" placeholder="Enter portal username" required autocomplete="username">
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 2rem;">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.9rem;">
+                <span>Authenticate Credentials</span>
+                <i data-lucide="arrow-right"></i>
+            </button>
+        </form>
+        
+        <div class="demo-credentials">
+            <p style="font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-secondary);">Demo Portal Credentials:</p>
+            <p>🔑 <strong>Admin:</strong> admin / admin123</p>
+            <p>🔑 <strong>Faculty:</strong> dr_sharma / faculty123</p>
+            <p>🔑 <strong>Student:</strong> alice / student123, charlie / student123</p>
+        </div>
+    </div>
+
+    <script>
+        // Init Lucide
+        lucide.createIcons();
+        
+        // Auto-dismiss flashes
+        const toasts = document.querySelectorAll('.toast-alert');
+        toasts.forEach(toast => {
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease reverse forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        });
+    </script>
+</body>
+</html>

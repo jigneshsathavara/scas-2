@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="panel-header">
+    <div>
+        <h2 class="panel-title" style="font-size: 1.5rem; font-weight: 700;">System Administration</h2>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.25rem;">Real-time metrics, analytics trends, and database operations monitor</p>
+    </div>
+    <div style="display: flex; gap: 0.75rem;">
+        <div class="dropdown">
+            <button class="btn btn-secondary">
+                <i data-lucide="download"></i>
+                <span>Users List</span>
+                <i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i>
+            </button>
+            <div class="dropdown-content">
+                <a href="{{ url_for('admin.download_users_report') }}">
+                    <i data-lucide="file-spreadsheet" style="width: 14px; height: 14px;"></i>
+                    <span>Download CSV</span>
+                </a>
+                <a href="{{ url_for('admin.print_users_report') }}" target="_blank">
+                    <i data-lucide="file-text" style="width: 14px; height: 14px;"></i>
+                    <span>Download PDF</span>
+                </a>
+            </div>
+        </div>
+        
+        <div class="dropdown">
+            <button class="btn btn-secondary">
+                <i data-lucide="download"></i>
+                <span>Fee Ledger</span>
+                <i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i>
+            </button>
+            <div class="dropdown-content">
+                <a href="{{ url_for('admin.download_financials_report') }}">
+                    <i data-lucide="file-spreadsheet" style="width: 14px; height: 14px;"></i>
+                    <span>Download CSV</span>
+                </a>
+                <a href="{{ url_for('admin.print_financials_report') }}" target="_blank">
+                    <i data-lucide="file-text" style="width: 14px; height: 14px;"></i>
+                    <span>Download PDF</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Aggregated Metrics Grid -->
+<div class="card-grid">
+    <div class="metric-card">
+        <div class="metric-info">
+            <h3>Enrolled Students</h3>
+            <div class="value">{{ total_students }}</div>
+        </div>
+        <div class="metric-icon indigo">
+            <i data-lucide="users"></i>
+        </div>
+    </div>
+    
+    <div class="metric-card">
+        <div class="metric-info">
+            <h3>Registered Faculty</h3>
+            <div class="value">{{ total_faculty }}</div>
+        </div>
+        <div class="metric-icon cyan">
+            <i data-lucide="user-cog"></i>
+        </div>
+    </div>
+    
+    <div class="metric-card">
+        <div class="metric-info">
+            <h3>Active Courses</h3>
+            <div class="value">{{ total_courses }}</div>
+        </div>
+        <div class="metric-icon success">
+            <i data-lucide="book-open"></i>
+        </div>
+    </div>
+    
+    <div class="metric-card">
+        <div class="metric-info">
+            <h3>Tuition Fee Collected</h3>
+            <div class="value" style="color: var(--color-success);">₹{{ "{:,.2f}".format(total_collected) }}</div>
+        </div>
+        <div class="metric-icon success" style="background: rgba(16, 185, 129, 0.15);">
+            <i data-lucide="indian-rupee"></i>
+        </div>
+    </div>
+</div>
+
+<!-- Analytics Chart Section -->
+<div class="chart-grid">
+    <div class="panel">
+        <div class="panel-header">
+            <h3 class="panel-title">Course Enrollment Distribution</h3>
+            <i data-lucide="bar-chart-3" style="color: var(--text-secondary);"></i>
+        </div>
+        <div style="height: 320px; position: relative;">
+            <canvas id="enrollmentChart"></canvas>
+        </div>
+    </div>
+    
+    <div class="panel">
+        <div class="panel-header">
+            <h3 class="panel-title">Fee Collection Ratio</h3>
+            <i data-lucide="pie-chart" style="color: var(--text-secondary);"></i>
+        </div>
+        <div style="height: 320px; position: relative; display: flex; align-items: center; justify-content: center;">
+            <canvas id="financeChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="panel">
+    <div class="panel-header">
+        <h3 class="panel-title">Recent User Registrations</h3>
+        <span class="badge badge-info">Latest Accounts</span>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Display Name</th>
+                    <th>Username</th>
+                    <th>Email Address</th>
+                    <th>Role Assigned</th>
+                    <th>Creation Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in recent_users %}
+                <tr>
+                    <td style="font-weight: 600;">{{ u.name }}</td>
+                    <td>{{ u.username }}</td>
+                    <td>{{ u.email }}</td>
+                    <td>
+                        {% if u.role == 'admin' %}
+                        <span class="badge badge-danger">Administrator</span>
+                        {% elif u.role == 'faculty' %}
+                        <span class="badge badge-warning">Faculty</span>
+                        {% else %}
+                        <span class="badge badge-success">Student</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ u.created_at | datetimeformat }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" style="text-align: center; color: var(--text-secondary);">No recent registrations.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Get colors based on CSS Custom Properties
+    function getThemeColor(variable) {
+        return getComputedStyle(document.documentElement).getPropertyValue(variable).strip || 
+               getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
+    }
+
+    const primaryColor = getThemeColor('--accent-primary');
+    const secondaryColor = getThemeColor('--accent-secondary');
+    const successColor = getThemeColor('--color-success');
+    const dangerColor = getThemeColor('--color-danger');
+    const textPrimary = getThemeColor('--text-primary');
+    const textSecondary = getThemeColor('--text-secondary');
+    const borderColor = getThemeColor('--border-color');
+
+    // 1. Enrollment Chart
+    const courseLabels = {{ course_labels | tojson }};
+    const courseCounts = {{ course_student_counts | tojson }};
+    
+    const ctxEnrollment = document.getElementById('enrollmentChart').getContext('2d');
+    new Chart(ctxEnrollment, {
+        type: 'bar',
+        data: {
+            labels: courseLabels,
+            datasets: [{
+                label: 'Students Enrolled',
+                data: courseCounts,
+                backgroundColor: 'rgba(139, 92, 246, 0.75)',
+                borderColor: '#8b5cf6',
+                borderWidth: 2,
+                borderRadius: 8,
+                barThickness: 35
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    grid: { color: borderColor },
+                    ticks: { color: textSecondary, stepSize: 1 }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { color: textSecondary }
+                }
+            }
+        }
+    });
+
+    // 2. Fees Doughnut Chart
+    const totalCollected = {{ total_collected }};
+    const totalPending = {{ total_pending }};
+    
+    const ctxFinance = document.getElementById('financeChart').getContext('2d');
+    new Chart(ctxFinance, {
+        type: 'doughnut',
+        data: {
+            labels: ['Tuition Paid', 'Fees Outstanding'],
+            datasets: [{
+                data: [totalCollected, totalPending],
+                backgroundColor: ['#10b981', '#ef4444'],
+                borderWidth: 0,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: textSecondary, font: { family: 'Outfit', size: 12 } }
+                }
+            },
+            cutout: '75%'
+        }
+    });
+</script>
+{% endblock %}

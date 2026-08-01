@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="panel-header">
+    <div>
+        <h2 class="panel-title" style="font-size: 1.5rem; font-weight: 700;">Academic Records</h2>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.25rem;">Comprehensive scorecard, examination grades, and class attendance registers</p>
+    </div>
+    <div class="dropdown">
+        <button class="btn btn-secondary">
+            <i data-lucide="download"></i>
+            <span>Download Report</span>
+            <i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i>
+        </button>
+        <div class="dropdown-content">
+            <a href="{{ url_for('student.download_student_report') }}">
+                <i data-lucide="file-spreadsheet" style="width: 14px; height: 14px;"></i>
+                <span>Download CSV</span>
+            </a>
+            <a href="{{ url_for('student.print_student_report') }}" target="_blank">
+                <i data-lucide="file-text" style="width: 14px; height: 14px;"></i>
+                <span>Download PDF</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="panel">
+    <div class="panel-header">
+        <h3 class="panel-title">Subject Performance Sheet</h3>
+        <span class="badge badge-info">Course: {{ student.course.name }}</span>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Subject</th>
+                    <th>Attendance Log</th>
+                    <th>Midterm 1</th>
+                    <th>Midterm 2</th>
+                    <th>Semester Final</th>
+                    <th>Assignment</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in academic_summary %}
+                <tr>
+                    <td>
+                        <div style="font-weight: 600;">{{ item.subject.name }}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Code: {{ item.subject.code }}</div>
+                    </td>
+                    <td>
+                        <div style="font-weight: 600; {% if item.attendance_rate < 75 %}color: var(--color-danger);{% endif %}">
+                            {{ item.attendance_rate }}%
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary);">({{ item.present }}/{{ item.total }} classes)</div>
+                    </td>
+                    
+                    <!-- Midterm 1 -->
+                    <td>
+                        {% set m1 = item.marks | selectattr('exam_type', 'equalto', 'Midterm 1') | first %}
+                        {% if m1 %}
+                        <div style="font-weight: 600;">{{ m1.marks_obtained }} <span style="font-size: 0.75rem; color: var(--text-secondary);">/{{ m1.max_marks }}</span></div>
+                        {% else %}
+                        <span style="color: var(--text-secondary); font-size: 0.85rem;">N/A</span>
+                        {% endif %}
+                    </td>
+                    
+                    <!-- Midterm 2 -->
+                    <td>
+                        {% set m2 = item.marks | selectattr('exam_type', 'equalto', 'Midterm 2') | first %}
+                        {% if m2 %}
+                        <div style="font-weight: 600;">{{ m2.marks_obtained }} <span style="font-size: 0.75rem; color: var(--text-secondary);">/{{ m2.max_marks }}</span></div>
+                        {% else %}
+                        <span style="color: var(--text-secondary); font-size: 0.85rem;">N/A</span>
+                        {% endif %}
+                    </td>
+                    
+                    <!-- Final Exam -->
+                    <td>
+                        {% set f = item.marks | selectattr('exam_type', 'equalto', 'Final Exam') | first %}
+                        {% if f %}
+                        <div style="font-weight: 600; {% if (f.marks_obtained/f.max_marks*100) < 50 %}color: var(--color-danger);{% endif %}">
+                            {{ f.marks_obtained }} <span style="font-size: 0.75rem; color: var(--text-secondary);">/{{ f.max_marks }}</span>
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary);">({{ (f.marks_obtained/f.max_marks*100)|round(1) }}%)</div>
+                        {% else %}
+                        <span style="color: var(--text-secondary); font-size: 0.85rem;">N/A</span>
+                        {% endif %}
+                    </td>
+                    
+                    <!-- Assignment -->
+                    <td>
+                        {% set a = item.marks | selectattr('exam_type', 'equalto', 'Assignment') | first %}
+                        {% if a %}
+                        <div style="font-weight: 600;">{{ a.marks_obtained }} <span style="font-size: 0.75rem; color: var(--text-secondary);">/{{ a.max_marks }}</span></div>
+                        {% else %}
+                        <span style="color: var(--text-secondary); font-size: 0.85rem;">N/A</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" style="text-align: center; color: var(--text-secondary);">No subject registers found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

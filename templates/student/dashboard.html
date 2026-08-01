@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="panel-header">
+    <div>
+        <h2 class="panel-title" style="font-size: 1.5rem; font-weight: 700;">Student Workspace</h2>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.25rem;">Academic evaluations, attendance profiles, and fee settlements</p>
+    </div>
+</div>
+
+<!-- Metrics Summary Grid -->
+<div class="card-grid">
+    <div class="metric-card">
+        <div class="metric-info">
+            <h3>Overall Attendance</h3>
+            <div class="value" {% if overall_attendance < 75 %}style="color: var(--color-danger);"{% endif %}>
+                {{ overall_attendance }}%
+            </div>
+        </div>
+        <div class="metric-icon {% if overall_attendance >= 75 %}success{% else %}danger{% endif %}">
+            <i data-lucide="calendar"></i>
+        </div>
+    </div>
+    
+    <div class="metric-card">
+        <div class="metric-info">
+            <h3>Calculated GPA</h3>
+            <div class="value">{{ gpa }} / 10.0</div>
+        </div>
+        <div class="metric-icon indigo">
+            <i data-lucide="award"></i>
+        </div>
+    </div>
+    
+    <div class="metric-card">
+        <div class="metric-info">
+            <h3>Tuition Fee Balance</h3>
+            {% if pending_bill %}
+            <div class="value" style="color: var(--color-danger); font-size: 1.45rem;">₹{{ "{:,.2f}".format(pending_bill.amount) }}</div>
+            {% else %}
+            <div class="value" style="color: var(--color-success); font-size: 1.45rem;">₹0.00 (Settled)</div>
+            {% endif %}
+        </div>
+        <div class="metric-icon {% if pending_bill %}warning{% else %}success{% endif %}">
+            <i data-lucide="credit-card"></i>
+        </div>
+    </div>
+</div>
+
+{% if overall_attendance < 75 %}
+<div class="panel" style="border-left: 4px solid var(--color-danger); background: rgba(239, 68, 68, 0.04); padding: 1rem 1.5rem; margin-bottom: 1.5rem;">
+    <div style="display: flex; align-items: center; gap: 0.75rem; color: var(--color-danger);">
+        <i data-lucide="alert-octagon"></i>
+        <h4 style="font-weight: 700;">Critical Attendance Warning</h4>
+    </div>
+    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
+        Your aggregate attendance has dropped to <strong>{{ overall_attendance }}%</strong>, which is below the mandatory <strong>75%</strong> requirement. Please consult your faculty members to avoid examination restrictions.
+    </p>
+</div>
+{% endif %}
+
+<div class="chart-grid">
+    <!-- Subject Attendance Chart -->
+    <div class="panel">
+        <div class="panel-header">
+            <h3 class="panel-title">Subject-wise Attendance Distribution</h3>
+            <i data-lucide="bar-chart-2" style="color: var(--text-secondary);"></i>
+        </div>
+        <div style="height: 300px; position: relative;">
+            <canvas id="studentAttendanceChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Next/Today's lectures -->
+    <div class="panel" style="display: flex; flex-direction: column;">
+        <div class="panel-header">
+            <h3 class="panel-title">Lectures Scheduled Today</h3>
+            <i data-lucide="calendar" style="color: var(--text-secondary);"></i>
+        </div>
+        
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 0.75rem;">
+            {% for s in today_schedules %}
+            <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 12px; padding: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h4 style="font-weight: 600; font-size: 0.95rem;">{{ s.subject.name }}</h4>
+                    <span style="font-size: 0.75rem; color: var(--text-secondary);">Room: {{ s.room }}</span>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-weight: 600; font-size: 0.85rem; color: var(--accent-primary);">{{ s.start_time }}</div>
+                    <span style="font-size: 0.75rem; color: var(--text-secondary);">to {{ s.end_time }}</span>
+                </div>
+            </div>
+            {% else %}
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-secondary); text-align: center; padding: 2rem;">
+                <i data-lucide="calendar-off" style="width: 32px; height: 32px; margin-bottom: 0.5rem; opacity: 0.6;"></i>
+                <p style="font-size: 0.85rem;">No lectures scheduled on your timetable for today.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function getThemeColor(variable) {
+        return getComputedStyle(document.documentElement).getPropertyValue(variable).strip || 
+               getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
+    }
+    
+    const textSecondary = getThemeColor('--text-secondary');
+    const borderColor = getThemeColor('--border-color');
+    
+    // Parse Flask lists
+    const subjectAttendance = {{ subject_attendance | tojson }};
+    const labels = subjectAttendance.map(item => item.subject_code);
+    const rates = subjectAttendance.map(item => item.rate);
+    
+    // Bar Colors: Highlight subjects below 75% in red, others in violet
+    const barColors = subjectAttendance.map(item => item.rate < 75.0 ? 'rgba(239, 68, 68, 0.75)' : 'rgba(139, 92, 246, 0.75)');
+    const borderColors = subjectAttendance.map(item => item.rate < 75.0 ? '#ef4444' : '#8b5cf6');
+
+    const ctx = document.getElementById('studentAttendanceChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Attendance Rate (%)',
+                data: rates,
+                backgroundColor: barColors,
+                borderColor: borderColors,
+                borderWidth: 2,
+                borderRadius: 6,
+                barThickness: 30
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    min: 0,
+                    max: 100,
+                    grid: { color: borderColor },
+                    ticks: { color: textSecondary, stepSize: 20 }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { color: textSecondary }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="panel-header">
+    <div>
+        <h2 class="panel-title" style="font-size: 1.5rem; font-weight: 700;">Academic Settings</h2>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.25rem;">Define Courses, Semester Batches, and Course Subjects assigned to teachers</p>
+    </div>
+</div>
+
+<div class="chart-grid" style="grid-template-columns: 1fr 1fr;">
+    <!-- Course & Batch Panel -->
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <!-- Courses Setup -->
+        <div class="panel">
+            <div class="panel-header">
+                <h3 class="panel-title">Add Course</h3>
+                <i data-lucide="book" style="color: var(--text-secondary);"></i>
+            </div>
+            
+            <form action="{{ url_for('admin.courses') }}" method="POST" style="margin-bottom: 1.5rem;">
+                <input type="hidden" name="action" value="create_course">
+                
+                <div class="form-group">
+                    <label for="courseCode" class="form-label">Course Code</label>
+                    <input type="text" name="code" id="courseCode" class="form-control" required placeholder="MCA">
+                </div>
+                
+                <div class="form-group">
+                    <label for="courseName" class="form-label">Course Name</label>
+                    <input type="text" name="name" id="courseName" class="form-control" required placeholder="Master of Computer Applications">
+                </div>
+                
+                <div class="form-group">
+                    <label for="courseDesc" class="form-label">Description</label>
+                    <textarea name="description" id="courseDesc" class="form-control" placeholder="Course syllabus overview..." style="height: 80px; resize: none;"></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                    <i data-lucide="plus"></i>
+                    <span>Register Course</span>
+                </button>
+            </form>
+            
+            <div class="table-responsive">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Name</th>
+                            <th>Operation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in courses %}
+                        <tr>
+                            <td><code>{{ c.code }}</code></td>
+                            <td>{{ c.name }}</td>
+                            <td>
+                                <form action="{{ url_for('admin.courses') }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this Course? This deletes all associated batches, subjects, and student links.');">
+                                    <input type="hidden" name="action" value="delete_course">
+                                    <input type="hidden" name="course_id" value="{{ c.id }}">
+                                    <button type="submit" class="btn btn-danger" style="padding: 0.3rem 0.5rem; font-size: 0.75rem; background: var(--color-danger);">
+                                        <i data-lucide="trash" style="width: 12px; height: 12px;"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Batches Setup -->
+        <div class="panel">
+            <div class="panel-header">
+                <h3 class="panel-title">Add Batch Group</h3>
+                <i data-lucide="folder" style="color: var(--text-secondary);"></i>
+            </div>
+            
+            <form action="{{ url_for('admin.courses') }}" method="POST">
+                <input type="hidden" name="action" value="create_batch">
+                
+                <div class="form-group">
+                    <label for="batchName" class="form-label">Batch Designation</label>
+                    <input type="text" name="name" id="batchName" class="form-control" required placeholder="MCA 2024-2026">
+                </div>
+                
+                <div class="form-group">
+                    <label for="batchCourse" class="form-label">Linked Course</label>
+                    <select name="course_id" id="batchCourse" class="form-control">
+                        {% for c in courses %}
+                        <option value="{{ c.id }}">{{ c.name }} ({{ c.code }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="batchYear" class="form-label">Graduation Year</label>
+                    <input type="number" name="year" id="batchYear" class="form-control" required placeholder="2026" value="2026">
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                    <i data-lucide="plus"></i>
+                    <span>Register Batch</span>
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Subjects Setup Panel -->
+    <div class="panel">
+        <div class="panel-header">
+            <h3 class="panel-title">Assign Subjects & Lectures</h3>
+            <i data-lucide="book-open" style="color: var(--text-secondary);"></i>
+        </div>
+        
+        <form action="{{ url_for('admin.courses') }}" method="POST" style="margin-bottom: 2rem;">
+            <input type="hidden" name="action" value="create_subject">
+            
+            <div class="form-group">
+                <label for="subCode" class="form-label">Subject Code</label>
+                <input type="text" name="code" id="subCode" class="form-control" required placeholder="MCA-101">
+            </div>
+            
+            <div class="form-group">
+                <label for="subName" class="form-label">Subject Title</label>
+                <input type="text" name="name" id="subName" class="form-control" required placeholder="Python Web Development">
+            </div>
+            
+            <div class="form-group">
+                <label for="subCourse" class="form-label">Curriculum Course</label>
+                <select name="course_id" id="subCourse" class="form-control">
+                    {% for c in courses %}
+                    <option value="{{ c.id }}">{{ c.name }} ({{ c.code }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="subFaculty" class="form-label">Assigned Teacher (Faculty)</label>
+                <select name="faculty_id" id="subFaculty" class="form-control">
+                    {% for f in faculties %}
+                    <option value="{{ f.id }}">{{ f.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                <i data-lucide="plus"></i>
+                <span>Register Subject</span>
+            </button>
+        </form>
+        
+        <div class="table-responsive">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Subject Code</th>
+                        <th>Subject Name</th>
+                        <th>Instructor</th>
+                        <th>Operation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in subjects %}
+                    <tr>
+                        <td><code>{{ s.code }}</code></td>
+                        <td>
+                            <div style="font-weight: 600;">{{ s.name }}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Course: {{ s.course.code }}</div>
+                        </td>
+                        <td>
+                            {% set fac = faculties | selectattr('id', 'equalto', s.faculty_id) | first %}
+                            {{ fac.name if fac else 'Unassigned' }}
+                        </td>
+                        <td>
+                            <form action="{{ url_for('admin.courses') }}" method="POST" onsubmit="return confirm('Are you sure you want to remove this Subject? This resets attendance logs and mark entries.');">
+                                <input type="hidden" name="action" value="delete_subject">
+                                <input type="hidden" name="subject_id" value="{{ s.id }}">
+                                <button type="submit" class="btn btn-danger" style="padding: 0.3rem 0.5rem; font-size: 0.75rem; background: var(--color-danger);">
+                                    <i data-lucide="trash" style="width: 12px; height: 12px;"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
