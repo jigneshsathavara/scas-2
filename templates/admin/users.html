@@ -12,6 +12,39 @@
     </button>
 </div>
 
+<!-- CSV Upload Center -->
+<div class="panel" style="margin-bottom: 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+    <!-- Student CSV Import -->
+    <div style="border-right: 1px solid var(--border-color); padding-right: 1.5rem; margin-right: 0;">
+        <h4 style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--accent-secondary); display: flex; align-items: center; gap: 0.4rem;">
+            <i data-lucide="file-up" style="width:16px; height:16px;"></i>
+            <span>Import Students via CSV</span>
+        </h4>
+        <p style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+            Headers: <code>name</code>, <code>email</code>, <code>roll_no</code>, <code>phone</code>, <code>course_code</code>, <code>batch_name</code>
+        </p>
+        <form action="{{ url_for('admin.upload_students_csv') }}" method="POST" enctype="multipart/form-data" style="display: flex; gap: 0.5rem; align-items: center;">
+            <input type="file" name="file" accept=".csv" required style="font-size: 0.8rem; border: 1px solid var(--border-color); border-radius: 6px; padding: 0.4rem; background: var(--bg-primary); color: var(--text-primary); flex: 1; min-width: 0;">
+            <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: 6px; flex-shrink: 0;">Upload</button>
+        </form>
+    </div>
+    
+    <!-- Faculty CSV Import -->
+    <div>
+        <h4 style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--accent-secondary); display: flex; align-items: center; gap: 0.4rem;">
+            <i data-lucide="file-up" style="width:16px; height:16px;"></i>
+            <span>Import Faculty via CSV</span>
+        </h4>
+        <p style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+            Headers: <code>name</code>, <code>email</code>, <code>department</code>, <code>designation</code>, <code>subject_code</code>, <code>subject_name</code>, <code>course_code</code>
+        </p>
+        <form action="{{ url_for('admin.upload_faculty_csv') }}" method="POST" enctype="multipart/form-data" style="display: flex; gap: 0.5rem; align-items: center;">
+            <input type="file" name="file" accept=".csv" required style="font-size: 0.8rem; border: 1px solid var(--border-color); border-radius: 6px; padding: 0.4rem; background: var(--bg-primary); color: var(--text-primary); flex: 1; min-width: 0;">
+            <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: 6px; flex-shrink: 0;">Upload</button>
+        </form>
+    </div>
+</div>
+
 <div class="panel">
     <div class="table-responsive">
         <table class="table-custom">

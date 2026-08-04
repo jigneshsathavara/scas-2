@@ -1,6 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, make_response
 import csv
-from io import StringIO
+from io import StringIO, TextIOWrapper
+import random
+import string
 from models.models import db, User, Course, Batch, Subject, StudentProfile, FacultyProfile, FeePayment
 from routes.auth import role_required
 
@@ -275,3 +277,177 @@ def print_users_report():
 def print_financials_report():
     payments = FeePayment.query.join(StudentProfile).join(User).all()
     return render_template('admin/print_financials.html', payments=payments)
+
+@admin_bp.route('/users/upload/students', methods=['POST'])
+@role_required(['admin'])
+def upload_students_csv():
+    if 'file' not in request.files:
+        flash('No file uploaded.', 'danger')
+        return redirect(url_for('admin.users'))
+    
+    file = request.files['file']
+    if file.filename == '':
+        flash('No file selected.', 'danger')
+        return redirect(url_for('admin.users'))
+    
+    if not file.filename.endswith('.csv'):
+        flash('Invalid file. Only CSV uploads are supported.', 'danger')
+        return redirect(url_for('admin.users'))
+        
+    try:
+        csv_file = TextIOWrapper(file.stream, encoding='utf-8')
+        reader = csv.DictReader(csv_file)
+        
+        success_count = 0
+        skipped_count = 0
+        
+        for row in reader:
+            name = row.get('name', '').strip()
+            email = row.get('email', '').strip()
+            roll_no = row.get('roll_no', '').strip()
+            phone = row.get('phone', '').strip()
+            course_code = row.get('course_code', '').strip().upper()
+            batch_name = row.get('batch_name', '').strip()
+            
+            if not name or not email or not roll_no or not course_code or not batch_name:
+                skipped_count += 1
+                continue
+                
+            username = roll_no.lower()
+            
+            # Check duplicates
+            if User.query.filter((User.username == username) | (User.email == email)).first():
+                skipped_count += 1
+                continue
+            if StudentProfile.query.filter_by(roll_no=roll_no).first():
+                skipped_count += 1
+                continue
+                
+            # Resolve Course & Batch
+            course = Course.query.filter_by(code=course_code).first()
+            if not course:
+                skipped_count += 1
+                continue
+            batch = Batch.query.filter_by(name=batch_name, course_id=course.id).first()
+            if not batch:
+                skipped_count += 1
+                continue
+                
+            # Generate default password and create account
+            temp_pass = "SCAS-" + "".join(random.choices(string.ascii_uppercase + string.digits, k=5))
+            new_user = User(username=username, email=email, role='student', name=name)
+            new_user.set_password(temp_pass)
+            db.session.add(new_user)
+            db.session.flush()
+            
+            # Create StudentProfile
+            profile = StudentProfile(
+                user_id=new_user.id, roll_no=roll_no, 
+                batch_id=batch.id, course_id=course.id, phone=phone
+            )
+            db.session.add(profile)
+            db.session.flush()
+            
+            # Add default billing
+            payment = FeePayment(
+                student_id=profile.id, amount=65000.0, 
+                status='Pending', receipt_no=f"REC-{roll_no}-CSV"
+            )
+            db.session.add(payment)
+            
+            # Trigger email
+            from email_utils import send_credentials_email
+            send_credentials_email(email, name, 'student', username, temp_pass)
+            success_count += 1
+            
+        db.session.commit()
+        flash(f'CSV Upload complete! Imported: {success_count}, Skipped: {skipped_count}. Check sent_emails.log.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Failed to parse CSV file: {str(e)}', 'danger')
+        
+    return redirect(url_for('admin.users'))
+
+@admin_bp.route('/users/upload/faculty', methods=['POST'])
+@role_required(['admin'])
+def upload_faculty_csv():
+    if 'file' not in request.files:
+        flash('No file uploaded.', 'danger')
+        return redirect(url_for('admin.users'))
+    
+    file = request.files['file']
+    if file.filename == '':
+        flash('No file selected.', 'danger')
+        return redirect(url_for('admin.users'))
+    
+    if not file.filename.endswith('.csv'):
+        flash('Invalid file. Only CSV uploads are supported.', 'danger')
+        return redirect(url_for('admin.users'))
+        
+    try:
+        csv_file = TextIOWrapper(file.stream, encoding='utf-8')
+        reader = csv.DictReader(csv_file)
+        
+        success_count = 0
+        skipped_count = 0
+        
+        for row in reader:
+            name = row.get('name', '').strip()
+            email = row.get('email', '').strip()
+            dept = row.get('department', '').strip()
+            desig = row.get('designation', '').strip()
+            sub_code = row.get('subject_code', '').strip().upper()
+            sub_name = row.get('subject_name', '').strip()
+            course_code = row.get('course_code', '').strip().upper()
+            
+            if not name or not email or not dept or not desig or not sub_code or not sub_name or not course_code:
+                skipped_count += 1
+                continue
+                
+            username = email.split('@')[0].lower()
+            
+            # Check duplicates
+            if User.query.filter((User.username == username) | (User.email == email)).first():
+                skipped_count += 1
+                continue
+                
+            # Resolve Course
+            course = Course.query.filter_by(code=course_code).first()
+            if not course:
+                skipped_count += 1
+                continue
+                
+            # Generate default password and create account
+            temp_pass = "SCAS-" + "".join(random.choices(string.ascii_uppercase + string.digits, k=5))
+            new_user = User(username=username, email=email, role='faculty', name=name)
+            new_user.set_password(temp_pass)
+            db.session.add(new_user)
+            db.session.flush()
+            
+            # Create FacultyProfile
+            profile = FacultyProfile(user_id=new_user.id, department=dept, designation=desig)
+            db.session.add(profile)
+            
+            # Check if Subject exists, update instructor; else create
+            subject = Subject.query.filter_by(code=sub_code).first()
+            if subject:
+                subject.faculty_id = new_user.id
+            else:
+                subject = Subject(
+                    name=sub_name, code=sub_code, 
+                    course_id=course.id, faculty_id=new_user.id
+                )
+                db.session.add(subject)
+                
+            # Trigger email
+            from email_utils import send_credentials_email
+            send_credentials_email(email, name, 'faculty', username, temp_pass)
+            success_count += 1
+            
+        db.session.commit()
+        flash(f'CSV Upload complete! Imported: {success_count}, Skipped: {skipped_count}. Check sent_emails.log.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Failed to parse CSV file: {str(e)}', 'danger')
+        
+    return redirect(url_for('admin.users'))

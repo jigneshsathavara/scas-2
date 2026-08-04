@@ -74,3 +74,28 @@ def logout():
     session.clear()
     flash('You have been logged out successfully.', 'info')
     return redirect(url_for('auth.login'))
+
+@auth_bp.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form.get('email').strip()
+        user = User.query.filter_by(email=email).first()
+        
+        if user:
+            import random
+            import string
+            from email_utils import send_credentials_email
+            
+            # Generate random temporary password
+            temp_pass = "SCAS-RESET-" + "".join(random.choices(string.ascii_uppercase + string.digits, k=5))
+            user.set_password(temp_pass)
+            db.session.commit()
+            
+            # Send email
+            send_credentials_email(email, user.name, user.role, user.username, temp_pass, is_reset=True)
+            flash('A temporary password has been sent to your email. Check sent_emails.log!', 'success')
+            return redirect(url_for('auth.login'))
+        else:
+            flash('No account registered with that email address.', 'danger')
+            
+    return render_template('forgot_password.html')

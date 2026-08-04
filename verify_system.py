@@ -47,10 +47,9 @@ class TestCollegeAnalyticsSystem(unittest.TestCase):
         self.assertEqual(faculty.role, 'faculty')
         self.assertIsNotNone(faculty.faculty_profile)
         
-        student = User.query.filter_by(username='alice').first()
-        self.assertIsNotNone(student)
-        self.assertEqual(student.role, 'student')
-        self.assertIsNotNone(student.student_profile)
+        # Verify that demo students are removed and student list starts clean
+        student_count = User.query.filter_by(role='student').count()
+        self.assertEqual(student_count, 0)
 
 if __name__ == '__main__':
     print("Executing system verification tests...")
