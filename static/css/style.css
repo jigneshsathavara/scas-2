@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 /* --- Theme Declarations --- */
-:root {
+:root, [data-theme="dark"] {
     /* Premium Obsidian Violet Dark Theme */
     --bg-primary: #07040e;        /* Deep Space Obsidian */
     --bg-secondary: #0f0b1c;      /* Glassy Dark Violet */
@@ -145,6 +145,7 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    min-width: 0;
 }
 
 .header {
@@ -535,15 +536,60 @@ body {
     margin-bottom: 2rem;
 }
 
+/* Sidebar toggle and close buttons */
+.sidebar-toggle, .sidebar-close {
+    display: none;
+}
+
 @media (max-width: 992px) {
+    .sidebar-toggle {
+        display: inline-flex !important;
+    }
+    
+    .sidebar-close {
+        display: inline-flex !important;
+    }
+
     .chart-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
     }
+    
     .sidebar {
-        display: none; /* Add responsive menu support later */
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex !important;
+        z-index: 1000;
+        box-shadow: none;
     }
+    
+    .sidebar.open {
+        transform: translateX(0);
+        box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+    }
+    
     .main-wrapper {
-        margin-left: 0;
+        margin-left: 0 !important;
+        width: 100%;
+    }
+    
+    .content-body {
+        padding: 1.25rem;
+    }
+    
+    .panel {
+        padding: 1.25rem;
+    }
+    
+    .header {
+        padding: 0 1.25rem;
+    }
+    
+    .card-grid {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -593,4 +639,104 @@ body {
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-5px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Premium Frontend Enhancements --- */
+
+/* Ambient Glow Border Spotlight Effect */
+.metric-card, .panel, .login-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.metric-card::before, .panel::before, .login-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: radial-gradient(
+        800px circle at var(--mouse-x, 0px) var(--mouse-y, 0px),
+        rgba(139, 92, 246, 0.25),
+        transparent 40%
+    );
+    -webkit-mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: 2;
+}
+
+.metric-card:hover::before, .panel:hover::before, .login-card:hover::before {
+    opacity: 1;
+}
+
+/* Staggered Fade Up Animations */
+.animate-fade-up {
+    opacity: 0;
+    transform: translateY(15px);
+    animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation-delay: var(--delay, 0ms);
+}
+
+@keyframes fadeUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Button Ripple Click Effect */
+.btn {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s;
+}
+
+.btn-ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(0);
+    animation: ripple-animation 0.6s ease-out;
+    pointer-events: none;
+}
+
+@keyframes ripple-animation {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* Starfield Ambient Canvas styling */
+#ambient-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Login container adjustment for canvas background layers */
+.login-container {
+    position: relative;
+    z-index: 1;
+}
+
+.login-card {
+    position: relative;
+    z-index: 2;
+}
+
+/* Card perspective container for 3D tilt smooth transform */
+.metric-card {
+    will-change: transform;
+    transition: transform 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 0.3s;
 }

@@ -4,7 +4,11 @@
     <script>
         // Set theme immediately to prevent white flash
         (function() {
-            const currentTheme = localStorage.getItem('theme') || 'dark';
+            let currentTheme = localStorage.getItem('theme');
+            if (!currentTheme) {
+                currentTheme = 'dark';
+                localStorage.setItem('theme', 'dark');
+            }
             document.documentElement.setAttribute('data-theme', currentTheme);
         })();
     </script>
@@ -20,6 +24,7 @@
     {% block head %}{% endblock %}
 </head>
 <body>
+    <canvas id="ambient-canvas"></canvas>
     <div class="toast-container">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -36,9 +41,14 @@
     <div class="app-container">
         <!-- Sidebar Navigation -->
         <aside class="sidebar">
-            <div class="sidebar-logo">
-                <i data-lucide="graduation-cap"></i>
-                <span>Smart College</span>
+            <div class="sidebar-logo" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <i data-lucide="graduation-cap"></i>
+                    <span>Smart College</span>
+                </div>
+                <button id="sidebar-close" class="sidebar-close" style="background: none; border: none; color: var(--text-secondary); cursor: pointer;" title="Close Menu">
+                    <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+                </button>
             </div>
             
             <ul class="sidebar-menu">
@@ -123,9 +133,14 @@
         <!-- Main Content Area -->
         <div class="main-wrapper">
             <header class="header">
-                <div class="header-search">
-                    <i data-lucide="search"></i>
-                    <input type="text" placeholder="Search analytics metrics...">
+                <div style="display: flex; align-items: center;">
+                    <button id="sidebar-toggle" class="sidebar-toggle" style="background: none; border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.5rem; border-radius: 8px; cursor: pointer; align-items: center; justify-content: center; margin-right: 1rem;" title="Toggle Menu">
+                        <i data-lucide="menu" style="width: 20px; height: 20px;"></i>
+                    </button>
+                    <div class="header-search">
+                        <i data-lucide="search"></i>
+                        <input type="text" placeholder="Search analytics metrics...">
+                    </div>
                 </div>
                 
                 <div class="header-actions">

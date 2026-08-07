@@ -1,6 +1,19 @@
+import os
 from flask import Flask, redirect, url_for, session
 from config import Config
 from models.models import db, User
+
+# Manual .env loading on startup
+if os.path.exists('.env'):
+    with open('.env', 'r', encoding='utf-8') as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith('#') and '=' in line:
+                key, val = line.split('=', 1)
+                # Strip potential surrounding quotes
+                val_clean = val.strip().strip("'").strip('"')
+                os.environ[key.strip()] = val_clean
+
 
 def create_app():
     app = Flask(__name__)

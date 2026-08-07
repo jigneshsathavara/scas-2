@@ -1,3 +1,3 @@
-name,email,roll_no,phone,course_code,batch_name
-himanshu goswami,goswamihimanshu035@gmail.com,MCA24004,7016429311,MCA,MCA 2024-2026
-jignesh sathavara,sathvarajigar2@gmail.com,MCA24005,9898510712,MCA,MCA 2024-2026
+name,email,roll_no,phone,course_code,batch_name,password
+himanshu goswami,goswamihimanshu035@gmail.com,MCA24004,7016429311,MCA,MCA 2024-2026,SCASStudent123
+jignesh sathavara,sathvarajigar2@gmail.com,MCA24005,9898510712,MCA,MCA 2024-2026,SCASStudent123

@@ -23,8 +23,8 @@ Here are your portal access credentials:
 👉 Username / ID: {username}
 👉 Temporary Password: {password}
 
-⚠️ NOTICE: This is a system auto-generated password.
-For security reasons, kindly log in and change your password immediately.
+⚠️ IMPORTANT NOTICE: This is a system auto-generated or default password.
+For security reasons, you are kindly requested to log in and change your password immediately.
 
 Best regards,
 Dean System Administrator
@@ -33,10 +33,19 @@ Smart College Portal Support Team
 """
     
     # 1. Always write to console in a nice box
-    print("\n" + "="*80)
-    print("✉️  MOCK MAIL TRANSPORT ACTIVATED")
-    print(body.strip())
-    print("="*80 + "\n")
+    try:
+        print("\n" + "="*80)
+        print("✉️  MOCK MAIL TRANSPORT ACTIVATED")
+        print(body.strip())
+        print("="*80 + "\n")
+    except UnicodeEncodeError:
+        print("\n" + "="*80)
+        print("[MOCK MAIL TRANSPORT ACTIVATED]")
+        try:
+            print(body.strip())
+        except UnicodeEncodeError:
+            print(body.strip().encode('ascii', 'replace').decode('ascii'))
+        print("="*80 + "\n")
     
     # 2. Always append to the sent_emails.log file
     try:
@@ -47,12 +56,27 @@ Smart College Portal Support Team
     except Exception as e:
         print(f"Error writing to sent_emails.log: {str(e)}")
 
-    # 3. Attempt real SMTP delivery if config variables are set in environment
+    # 3. Attempt real SMTP delivery if config variables are set in environment or Config
     smtp_server = os.environ.get('SMTP_SERVER')
-    smtp_port = os.environ.get('SMTP_PORT', 587)
+    smtp_port = os.environ.get('SMTP_PORT')
     smtp_user = os.environ.get('SMTP_USER')
     smtp_pass = os.environ.get('SMTP_PASS')
     
+    if not smtp_server or not smtp_user or not smtp_pass:
+        try:
+            from config import Config
+            smtp_server = smtp_server or Config.SMTP_SERVER
+            smtp_port = smtp_port or Config.SMTP_PORT
+            smtp_user = smtp_user or Config.SMTP_USER
+            smtp_pass = smtp_pass or Config.SMTP_PASS
+        except Exception:
+            pass
+            
+    if smtp_port is None:
+        smtp_port = 587
+    else:
+        smtp_port = int(smtp_port)
+        
     if smtp_server and smtp_user and smtp_pass:
         try:
             msg = MIMEMultipart()
@@ -61,7 +85,7 @@ Smart College Portal Support Team
             msg['Subject'] = subject
             msg.attach(MIMEText(body, 'plain'))
             
-            server = smtplib.SMTP(smtp_server, int(smtp_port))
+            server = smtplib.SMTP(smtp_server, smtp_port)
             server.starttls()
             server.login(smtp_user, smtp_pass)
             server.sendmail(smtp_user, to_email, msg.as_string())

@@ -7,7 +7,11 @@
     <script>
         // Set theme immediately to prevent white flash
         (function() {
-            const currentTheme = localStorage.getItem('theme') || 'dark';
+            let currentTheme = localStorage.getItem('theme');
+            if (!currentTheme) {
+                currentTheme = 'dark';
+                localStorage.setItem('theme', 'dark');
+            }
             document.documentElement.setAttribute('data-theme', currentTheme);
         })();
     </script>
@@ -41,6 +45,7 @@
     </style>
 </head>
 <body class="login-container">
+    <canvas id="ambient-canvas"></canvas>
     <div class="toast-container">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -95,12 +100,6 @@
                         Quick Login
                     </button>
                 </div>
-                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.8rem;">
-                    <span>🔑 <strong>Faculty:</strong> dr_sharma</span>
-                    <button type="button" onclick="quickLogin('dr_sharma', 'faculty123')" class="btn btn-secondary" style="padding: 0.25rem 0.6rem; font-size: 0.75rem; border-radius: 6px; border: 1px solid var(--accent-primary); color: #fff; background: rgba(139, 92, 246, 0.15); cursor: pointer;">
-                        Quick Login
-                    </button>
-                </div>
             </div>
         </div>
     </div>
@@ -125,5 +124,6 @@
             }, 4000);
         });
     </script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

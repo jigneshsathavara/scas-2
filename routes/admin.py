@@ -313,7 +313,7 @@ def upload_students_csv():
                 skipped_count += 1
                 continue
                 
-            username = roll_no.lower()
+            username = email.lower()
             
             # Check duplicates
             if User.query.filter((User.username == username) | (User.email == email)).first():
@@ -334,7 +334,9 @@ def upload_students_csv():
                 continue
                 
             # Generate default password and create account
-            temp_pass = "SCAS-" + "".join(random.choices(string.ascii_uppercase + string.digits, k=5))
+            temp_pass = row.get('password', '').strip()
+            if not temp_pass:
+                temp_pass = "SCASStudent123"
             new_user = User(username=username, email=email, role='student', name=name)
             new_user.set_password(temp_pass)
             db.session.add(new_user)
@@ -404,7 +406,7 @@ def upload_faculty_csv():
                 skipped_count += 1
                 continue
                 
-            username = email.split('@')[0].lower()
+            username = email.lower()
             
             # Check duplicates
             if User.query.filter((User.username == username) | (User.email == email)).first():
@@ -418,7 +420,9 @@ def upload_faculty_csv():
                 continue
                 
             # Generate default password and create account
-            temp_pass = "SCAS-" + "".join(random.choices(string.ascii_uppercase + string.digits, k=5))
+            temp_pass = row.get('password', '').strip()
+            if not temp_pass:
+                temp_pass = "SCASFaculty123"
             new_user = User(username=username, email=email, role='faculty', name=name)
             new_user.set_password(temp_pass)
             db.session.add(new_user)
@@ -450,4 +454,60 @@ def upload_faculty_csv():
         db.session.rollback()
         flash(f'Failed to parse CSV file: {str(e)}', 'danger')
         
+    return redirect(url_for('admin.users'))
+
+@admin_bp.route('/users/send_credentials/<int:user_id>', methods=['POST'])
+@role_required(['admin'])
+def send_credentials(user_id):
+    user = User.query.get_or_404(user_id)
+    # Generate temporary password
+    temp_pass = "SCAS-" + "".join(random.choices(string.ascii_uppercase + string.digits, k=5))
+    user.set_password(temp_pass)
+    db.session.commit()
+    
+    # Trigger email
+    from email_utils import send_credentials_email
+    send_credentials_email(user.email, user.name, user.role, user.username, temp_pass, is_reset=True)
+    
+    flash(f'Credentials email sent to {user.name} ({user.email}). Check sent_emails.log.', 'success')
+    return redirect(url_for('admin.users'))
+
+@admin_bp.route('/users/send_all_students_credentials', methods=['POST'])
+@role_required(['admin'])
+def send_all_students_credentials():
+    students = User.query.filter_by(role='student').all()
+    if not students:
+        flash('No students found in the database.', 'warning')
+        return redirect(url_for('admin.users'))
+        
+    sent_count = 0
+    from email_utils import send_credentials_email
+    for student in students:
+        temp_pass = "SCAS-" + "".join(random.choices(string.ascii_uppercase + string.digits, k=5))
+        student.set_password(temp_pass)
+        send_credentials_email(student.email, student.name, student.role, student.username, temp_pass, is_reset=True)
+        sent_count += 1
+        
+    db.session.commit()
+    flash(f'Credentials successfully reset and emailed to all {sent_count} students. Check sent_emails.log.', 'success')
+    return redirect(url_for('admin.users'))
+
+@admin_bp.route('/users/send_all_faculty_credentials', methods=['POST'])
+@role_required(['admin'])
+def send_all_faculty_credentials():
+    faculty_list = User.query.filter_by(role='faculty').all()
+    if not faculty_list:
+        flash('No faculty members found in the database.', 'warning')
+        return redirect(url_for('admin.users'))
+        
+    sent_count = 0
+    from email_utils import send_credentials_email
+    for faculty in faculty_list:
+        temp_pass = "SCAS-" + "".join(random.choices(string.ascii_uppercase + string.digits, k=5))
+        faculty.set_password(temp_pass)
+        send_credentials_email(faculty.email, faculty.name, faculty.role, faculty.username, temp_pass, is_reset=True)
+        sent_count += 1
+        
+    db.session.commit()
+    flash(f'Credentials successfully reset and emailed to all {sent_count} faculty members. Check sent_emails.log.', 'success')
     return redirect(url_for('admin.users'))

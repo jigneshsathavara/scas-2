@@ -1,19 +1,33 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="panel-header">
+<div class="panel-header" style="flex-wrap: wrap; gap: 1rem;">
     <div>
         <h2 class="panel-title" style="font-size: 1.5rem; font-weight: 700;">User Account Control</h2>
         <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.25rem;">Manage platform login permissions and role assignments</p>
     </div>
-    <button onclick="openCreateModal()" class="btn btn-primary">
-        <i data-lucide="user-plus"></i>
-        <span>Add User Account</span>
-    </button>
+    <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+        <form action="{{ url_for('admin.send_all_students_credentials') }}" method="POST" onsubmit="return confirm('This will reset passwords for ALL students and email them their new credentials. Proceed?');" style="display: inline;">
+            <button type="submit" class="btn btn-secondary" style="border: 1px solid var(--accent-primary); background: rgba(139, 92, 246, 0.05); color: var(--text-primary); display: inline-flex; align-items: center; gap: 0.5rem;" title="Email All Students">
+                <i data-lucide="mail"></i>
+                <span>Email All Students</span>
+            </button>
+        </form>
+        <form action="{{ url_for('admin.send_all_faculty_credentials') }}" method="POST" onsubmit="return confirm('This will reset passwords for ALL faculty members and email them their new credentials. Proceed?');" style="display: inline;">
+            <button type="submit" class="btn btn-secondary" style="border: 1px solid var(--accent-secondary); background: rgba(236, 72, 153, 0.05); color: var(--text-primary); display: inline-flex; align-items: center; gap: 0.5rem;" title="Email All Faculty">
+                <i data-lucide="mail"></i>
+                <span>Email All Faculty</span>
+            </button>
+        </form>
+        <button onclick="openCreateModal()" class="btn btn-primary">
+            <i data-lucide="user-plus"></i>
+            <span>Add User Account</span>
+        </button>
+    </div>
 </div>
 
 <!-- CSV Upload Center -->
-<div class="panel" style="margin-bottom: 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+<div class="panel" style="margin-bottom: 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 1.5rem;">
     <!-- Student CSV Import -->
     <div style="border-right: 1px solid var(--border-color); padding-right: 1.5rem; margin-right: 0;">
         <h4 style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--accent-secondary); display: flex; align-items: center; gap: 0.4rem;">
@@ -21,7 +35,7 @@
             <span>Import Students via CSV</span>
         </h4>
         <p style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
-            Headers: <code>name</code>, <code>email</code>, <code>roll_no</code>, <code>phone</code>, <code>course_code</code>, <code>batch_name</code>
+            Headers: <code>name</code>, <code>email</code>, <code>roll_no</code>, <code>phone</code>, <code>course_code</code>, <code>batch_name</code>, <code>password</code>
         </p>
         <form action="{{ url_for('admin.upload_students_csv') }}" method="POST" enctype="multipart/form-data" style="display: flex; gap: 0.5rem; align-items: center;">
             <input type="file" name="file" accept=".csv" required style="font-size: 0.8rem; border: 1px solid var(--border-color); border-radius: 6px; padding: 0.4rem; background: var(--bg-primary); color: var(--text-primary); flex: 1; min-width: 0;">
@@ -36,7 +50,7 @@
             <span>Import Faculty via CSV</span>
         </h4>
         <p style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
-            Headers: <code>name</code>, <code>email</code>, <code>department</code>, <code>designation</code>, <code>subject_code</code>, <code>subject_name</code>, <code>course_code</code>
+            Headers: <code>name</code>, <code>email</code>, <code>department</code>, <code>designation</code>, <code>subject_code</code>, <code>subject_name</code>, <code>course_code</code>, <code>password</code>
         </p>
         <form action="{{ url_for('admin.upload_faculty_csv') }}" method="POST" enctype="multipart/form-data" style="display: flex; gap: 0.5rem; align-items: center;">
             <input type="file" name="file" accept=".csv" required style="font-size: 0.8rem; border: 1px solid var(--border-color); border-radius: 6px; padding: 0.4rem; background: var(--bg-primary); color: var(--text-primary); flex: 1; min-width: 0;">
@@ -91,12 +105,17 @@
                         {% endif %}
                     </td>
                     <td>
-                        <div style="display: flex; gap: 0.5rem;">
-                            <button onclick="openEditModal('{{ u.id }}', '{{ u.name }}', '{{ u.username }}', '{{ u.email }}', '{{ u.role }}', '{{ u.faculty_profile.department if u.faculty_profile else '' }}', '{{ u.faculty_profile.designation if u.faculty_profile else '' }}', '{{ u.student_profile.roll_no if u.student_profile else '' }}', '{{ u.student_profile.course_id if u.student_profile else '' }}', '{{ u.student_profile.batch_id if u.student_profile else '' }}', '{{ u.student_profile.phone if u.student_profile else '' }}')" class="btn btn-secondary" style="padding: 0.4rem 0.6rem; font-size: 0.8rem;">
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <button onclick="openEditModal('{{ u.id }}', '{{ u.name }}', '{{ u.username }}', '{{ u.email }}', '{{ u.role }}', '{{ u.faculty_profile.department if u.faculty_profile else '' }}', '{{ u.faculty_profile.designation if u.faculty_profile else '' }}', '{{ u.student_profile.roll_no if u.student_profile else '' }}', '{{ u.student_profile.course_id if u.student_profile else '' }}', '{{ u.student_profile.batch_id if u.student_profile else '' }}', '{{ u.student_profile.phone if u.student_profile else '' }}')" class="btn btn-secondary" style="padding: 0.4rem 0.6rem; font-size: 0.8rem;" title="Edit User">
                                 <i data-lucide="edit" style="width: 14px; height: 14px;"></i>
                             </button>
                             {% if u.username != 'admin' %}
-                            <form action="{{ url_for('admin.users') }}" method="POST" onsubmit="return confirm('Are you sure you want to permanently delete this user account?');">
+                            <form action="{{ url_for('admin.send_credentials', user_id=u.id) }}" method="POST" onsubmit="return confirm('Reset password and email login credentials to {{ u.name }}?');" style="display: inline-block;">
+                                <button type="submit" class="btn btn-secondary" style="padding: 0.4rem 0.6rem; font-size: 0.8rem; background: rgba(139, 92, 246, 0.15); border-color: rgba(139, 92, 246, 0.3); color: var(--accent-primary);" title="Send Credentials Email">
+                                    <i data-lucide="mail" style="width: 14px; height: 14px;"></i>
+                                </button>
+                            </form>
+                            <form action="{{ url_for('admin.users') }}" method="POST" onsubmit="return confirm('Are you sure you want to permanently delete this user account?');" style="display: inline-block;">
                                 <input type="hidden" name="action" value="delete">
                                 <input type="hidden" name="user_id" value="{{ u.id }}">
                                 <button type="submit" class="btn btn-danger" style="padding: 0.4rem 0.6rem; font-size: 0.8rem; background: var(--color-danger);">
