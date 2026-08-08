@@ -116,42 +116,19 @@
             <i data-lucide="book-open" style="color: var(--text-secondary);"></i>
         </div>
         
-        <form action="{{ url_for('admin.courses') }}" method="POST" style="margin-bottom: 2rem;">
-            <input type="hidden" name="action" value="create_subject">
-            
-            <div class="form-group">
-                <label for="subCode" class="form-label">Subject Code</label>
-                <input type="text" name="code" id="subCode" class="form-control" required placeholder="MCA-101">
-            </div>
-            
-            <div class="form-group">
-                <label for="subName" class="form-label">Subject Title</label>
-                <input type="text" name="name" id="subName" class="form-control" required placeholder="Python Web Development">
-            </div>
-            
-            <div class="form-group">
-                <label for="subCourse" class="form-label">Curriculum Course</label>
-                <select name="course_id" id="subCourse" class="form-control">
-                    {% for c in courses %}
-                    <option value="{{ c.id }}">{{ c.name }} ({{ c.code }})</option>
-                    {% endfor %}
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label for="subFaculty" class="form-label">Assigned Teacher (Faculty)</label>
-                <select name="faculty_id" id="subFaculty" class="form-control">
-                    {% for f in faculties %}
-                    <option value="{{ f.id }}">{{ f.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            
-            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
-                <i data-lucide="plus"></i>
-                <span>Register Subject</span>
-            </button>
-        </form>
+        <div style="margin-bottom: 2rem; padding: 1.25rem; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 12px;">
+            <h4 style="font-weight: 600; font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--accent-secondary); display: flex; align-items: center; gap: 0.4rem;">
+                <i data-lucide="file-up" style="width:16px; height:16px;"></i>
+                <span>Import Subjects via CSV</span>
+            </h4>
+            <p style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+                Headers: <code>subject_code</code>, <code>subject_name</code>, <code>course_code</code>, <code>faculty_email</code>
+            </p>
+            <form action="{{ url_for('admin.upload_subjects_csv') }}" method="POST" enctype="multipart/form-data" style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0;">
+                <input type="file" name="file" accept=".csv" required style="font-size: 0.8rem; border: 1px solid var(--border-color); border-radius: 6px; padding: 0.4rem; background: var(--bg-primary); color: var(--text-primary); flex: 1; min-width: 0;">
+                <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: 6px; flex-shrink: 0;">Upload</button>
+            </form>
+        </div>
         
         <div class="table-responsive">
             <table class="table-custom">

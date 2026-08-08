@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash, session
+from flask import Blueprint, render_template, redirect, url_for, request, flash, session, current_app
 from functools import wraps
 from models.models import db, User
 
@@ -82,23 +82,57 @@ def forgot_password():
         user = User.query.filter_by(email=email).first()
         
         if user:
-            import random
-            import string
-            from email_utils import send_credentials_email
+            from itsdangerous import URLSafeTimedSerializer
+            from email_utils import send_reset_link_email
             
-            # Generate random temporary password
-            temp_pass = "SCAS-RESET-" + "".join(random.choices(string.ascii_uppercase + string.digits, k=5))
-            user.set_password(temp_pass)
-            db.session.commit()
+            serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+            token = serializer.dumps(email, salt='password-reset-salt')
+            reset_link = url_for('auth.reset_password', token=token, _external=True)
             
             # Send email
-            send_credentials_email(email, user.name, user.role, user.username, temp_pass, is_reset=True)
-            flash('A temporary password has been sent to your email. Check sent_emails.log!', 'success')
+            send_reset_link_email(email, user.name, reset_link)
+            flash('A password reset link has been sent to your email. Check sent_emails.log!', 'success')
             return redirect(url_for('auth.login'))
         else:
             flash('No account registered with that email address.', 'danger')
             
     return render_template('forgot_password.html')
+
+@auth_bp.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    from itsdangerous import URLSafeTimedSerializer
+    serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+    try:
+        # Link valid for 1 hour (3600 seconds)
+        email = serializer.loads(token, salt='password-reset-salt', max_age=3600)
+    except Exception:
+        flash('The password reset link is invalid or has expired.', 'danger')
+        return redirect(url_for('auth.forgot_password'))
+        
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        flash('Invalid request.', 'danger')
+        return redirect(url_for('auth.forgot_password'))
+        
+    if request.method == 'POST':
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+        
+        if new_password != confirm_password:
+            flash('New password and confirmation do not match.', 'danger')
+            return render_template('reset_password.html', token=token)
+            
+        if len(new_password) < 6:
+            flash('New password must be at least 6 characters long.', 'danger')
+            return render_template('reset_password.html', token=token)
+            
+        user.set_password(new_password)
+        db.session.commit()
+        
+        flash('Your password has been reset successfully. Please log in.', 'success')
+        return redirect(url_for('auth.login'))
+        
+    return render_template('reset_password.html', token=token)
 
 @auth_bp.route('/change-password', methods=['GET', 'POST'])
 @login_required

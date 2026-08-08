@@ -76,6 +76,18 @@
                             <span>Academic Setup</span>
                         </a>
                     </li>
+                    <li class="sidebar-item {% if 'admin/results' in request.path %}active{% endif %}">
+                        <a href="{{ url_for('admin.results') }}">
+                            <i data-lucide="award"></i>
+                            <span>Manage Results</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item {% if 'admin/attendance' in request.path %}active{% endif %}">
+                        <a href="{{ url_for('admin.attendance') }}">
+                            <i data-lucide="calendar-check"></i>
+                            <span>Manage Attendance</span>
+                        </a>
+                    </li>
                 {% elif session.get('role') == 'faculty' %}
                     <li class="sidebar-item {% if 'faculty/dashboard' in request.path %}active{% endif %}">
                         <a href="{{ url_for('faculty.dashboard') }}">
@@ -118,6 +130,18 @@
                         <a href="{{ url_for('student.payment') }}">
                             <i data-lucide="credit-card"></i>
                             <span>Fees & Payments</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item {% if 'student/results' in request.path %}active{% endif %}">
+                        <a href="{{ url_for('student.results') }}">
+                            <i data-lucide="award"></i>
+                            <span>My Results</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item {% if 'student/attendance' in request.path %}active{% endif %}">
+                        <a href="{{ url_for('student.attendance') }}">
+                            <i data-lucide="calendar"></i>
+                            <span>My Attendance</span>
                         </a>
                     </li>
                 {% endif %}

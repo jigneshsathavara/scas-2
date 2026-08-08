@@ -9,7 +9,7 @@ class User(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    password_hash = db.Column(db.String(120), nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     role = db.Column(db.String(20), nullable=False)  # 'admin', 'faculty', 'student'
     name = db.Column(db.String(100), nullable=False)
@@ -127,3 +127,33 @@ class FeePayment(db.Model):
     status = db.Column(db.String(20), nullable=False)  # 'Paid', 'Pending'
     receipt_no = db.Column(db.String(50), unique=True)
     transaction_id = db.Column(db.String(50), unique=True)
+
+class Result(db.Model):
+    __tablename__ = 'scas_results'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('scas_student_profiles.id'), nullable=False)
+    subject_id = db.Column(db.Integer, db.ForeignKey('scas_subjects.id'), nullable=False)
+    semester = db.Column(db.Integer, nullable=False)
+    marks_obtained = db.Column(db.Float, nullable=False)
+    max_marks = db.Column(db.Float, nullable=False)
+    credits = db.Column(db.Integer, nullable=False, default=4)
+    
+    # Relationships
+    student = db.relationship('StudentProfile', backref=db.backref('results', cascade="all, delete-orphan"))
+    subject = db.relationship('Subject', backref='results')
+
+class LeaveApplication(db.Model):
+    __tablename__ = 'scas_leave_applications'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('scas_users.id'), nullable=False)
+    leave_type = db.Column(db.String(50), nullable=False)  # e.g., 'Sick Leave', 'Casual Leave', 'Duty Leave'
+    start_date = db.Column(db.Date, nullable=False)
+    end_date = db.Column(db.Date, nullable=False)
+    reason = db.Column(db.Text, nullable=False)
+    status = db.Column(db.String(20), nullable=False, default='Pending')  # 'Pending', 'Approved', 'Rejected'
+    applied_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    user = db.relationship('User', backref=db.backref('leave_applications', cascade="all, delete-orphan"))
+

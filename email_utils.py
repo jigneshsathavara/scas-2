@@ -56,6 +56,11 @@ Smart College Portal Support Team
     except Exception as e:
         print(f"Error writing to sent_emails.log: {str(e)}")
 
+    # Check if this is a test/dummy email address
+    if to_email.endswith('@college.edu') or to_email == 'your-email@gmail.com':
+        print(f"Test Email Detected: Skipping real SMTP delivery to {to_email}.")
+        return True
+
     # 3. Attempt real SMTP delivery by loading credentials dynamically from .env
     env_vars = {}
     env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env')
@@ -121,6 +126,126 @@ Smart College Portal Support Team
         except Exception as e:
             print(f"SMTP Error: Failed to send real email to {to_email}. Error: {str(e)}")
             # Fail silently so app doesn't crash during offline presentation
+            
+    return True
+
+def send_reset_link_email(to_email, name, reset_link):
+    subject = "Smart College Portal - Password Reset Link"
+    
+    body = f"""Subject: {subject}
+Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+To: {to_email} ({name})
+------------------------------------------------------------
+Hello {name},
+
+We received a request to reset the password for your account on the Smart College Analytics System.
+
+You can reset your password by clicking on the link below:
+👉 Reset Password Link: {reset_link}
+
+⚠️ NOTICE: This link will expire in 1 hour.
+If you did not request a password reset, you can safely ignore this email.
+
+Best regards,
+Dean System Administrator
+Smart College Portal Support Team
+------------------------------------------------------------
+"""
+    
+    # 1. Always write to console in a nice box
+    try:
+        print("\n" + "="*80)
+        print("✉️  MOCK MAIL TRANSPORT ACTIVATED")
+        print(body.strip())
+        print("="*80 + "\n")
+    except UnicodeEncodeError:
+        print("\n" + "="*80)
+        print("[MOCK MAIL TRANSPORT ACTIVATED]")
+        try:
+            print(body.strip())
+        except UnicodeEncodeError:
+            print(body.strip().encode('ascii', 'replace').decode('ascii'))
+        print("="*80 + "\n")
+    
+    # 2. Always append to the sent_emails.log file
+    try:
+        with open(LOG_FILE, 'a', encoding='utf-8') as f:
+            f.write(f"\n--- MAIL SENT ON {datetime.now()} ---\n")
+            f.write(body)
+            f.write("="*60 + "\n")
+    except Exception as e:
+        print(f"Error writing to sent_emails.log: {str(e)}")
+
+    # Check if this is a test/dummy email address
+    if to_email.endswith('@college.edu') or to_email == 'your-email@gmail.com':
+        print(f"Test Email Detected: Skipping real SMTP delivery to {to_email}.")
+        return True
+
+    # 3. Attempt real SMTP delivery by loading credentials dynamically from .env
+    env_vars = {}
+    env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env')
+    if os.path.exists(env_path):
+        try:
+            with open(env_path, 'r', encoding='utf-8') as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#') and '=' in line:
+                        k, v = line.split('=', 1)
+                        env_vars[k.strip()] = v.strip().strip("'").strip('"')
+        except Exception:
+            pass
+
+    smtp_server = env_vars.get('SMTP_SERVER') or os.environ.get('SMTP_SERVER')
+    smtp_port = env_vars.get('SMTP_PORT') or os.environ.get('SMTP_PORT')
+    smtp_user = env_vars.get('SMTP_USER') or os.environ.get('SMTP_USER')
+    smtp_pass = env_vars.get('SMTP_PASS') or os.environ.get('SMTP_PASS')
+    
+    if not smtp_server or not smtp_user or not smtp_pass:
+        try:
+            from config import Config
+            smtp_server = smtp_server or Config.SMTP_SERVER
+            smtp_port = smtp_port or Config.SMTP_PORT
+            smtp_user = smtp_user or Config.SMTP_USER
+            smtp_pass = smtp_pass or Config.SMTP_PASS
+        except Exception:
+            pass
+            
+    if smtp_port is None:
+        smtp_port = 587
+    else:
+        smtp_port = int(smtp_port)
+        
+    # Check if app is in testing mode, skip real SMTP delivery
+    try:
+        from flask import current_app
+        if current_app and current_app.config.get('TESTING'):
+            print(f"Testing Mode Active: Skipping real SMTP delivery to {to_email}.")
+            return True
+    except Exception:
+        pass
+
+    # Check if using default placeholders, skip sending in that case to avoid timeouts/auth errors
+    if smtp_user == 'your-email@gmail.com' or smtp_pass == 'your-app-password':
+        print(f"SMTP Config: Using default credentials. Skipping SMTP delivery to {to_email}. Saved to sent_emails.log.")
+        return True
+
+    if smtp_server and smtp_user and smtp_pass:
+        try:
+            msg = MIMEMultipart()
+            msg['From'] = smtp_user
+            msg['To'] = to_email
+            msg['Subject'] = subject
+            msg.attach(MIMEText(body, 'plain'))
+            
+            server = smtplib.SMTP(smtp_server, smtp_port)
+            server.starttls()
+            server.login(smtp_user, smtp_pass)
+            server.sendmail(smtp_user, to_email, msg.as_string())
+            server.close()
+            print(f"SMTP Success: Email sent to {to_email}")
+        except Exception as e:
+            print(f"SMTP Error: Failed to send real email to {to_email}. Error: {str(e)}")
             pass
             
     return True
+

@@ -359,6 +359,11 @@ body {
     font-size: 0.95rem;
 }
 
+.form-control option {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
 .form-control:focus {
     border-color: var(--accent-primary);
 }

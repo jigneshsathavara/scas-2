@@ -146,6 +146,23 @@ CREATE TABLE `scas_fee_payments` (
   CONSTRAINT `scas_fee_payments_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `scas_student_profiles` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Table structure for table `scas_results`
+DROP TABLE IF EXISTS `scas_results`;
+CREATE TABLE `scas_results` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `student_id` int(11) NOT NULL,
+  `subject_id` int(11) NOT NULL,
+  `semester` int(11) NOT NULL,
+  `marks_obtained` float NOT NULL,
+  `max_marks` float NOT NULL,
+  `credits` int(11) NOT NULL DEFAULT 4,
+  PRIMARY KEY (`id`),
+  KEY `student_id` (`student_id`),
+  KEY `subject_id` (`subject_id`),
+  CONSTRAINT `scas_results_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `scas_student_profiles` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `scas_results_ibfk_2` FOREIGN KEY (`subject_id`) REFERENCES `scas_subjects` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 -- Dumping data for tables
 
@@ -154,11 +171,9 @@ INSERT INTO `scas_users` (`id`, `username`, `password_hash`, `email`, `role`, `n
 
 -- Dumping data for table `scas_courses`
 INSERT INTO `scas_courses` (`id`, `name`, `code`, `description`) VALUES (1, 'Master of Computer Applications', 'MCA', 'Post-graduate program in Computer Applications and Software Engineering.');
-INSERT INTO `scas_courses` (`id`, `name`, `code`, `description`) VALUES (2, 'Bachelor of Technology', 'BTECH', 'Undergraduate engineering studies program.');
 
 -- Dumping data for table `scas_batches`
 INSERT INTO `scas_batches` (`id`, `name`, `course_id`, `year`) VALUES (1, 'MCA 2024-2026', 1, 2026);
-INSERT INTO `scas_batches` (`id`, `name`, `course_id`, `year`) VALUES (2, 'BTech 2023-2027', 2, 2027);
 
 -- Dumping data for table `scas_faculty_profiles`
 -- No data in table `scas_faculty_profiles`
