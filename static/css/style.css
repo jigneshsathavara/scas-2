@@ -738,5 +738,160 @@ body {
 /* Card perspective container for 3D tilt smooth transform */
 .metric-card {
     will-change: transform;
-    transition: transform 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 0.3s;
+    transition: transform 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 0.3s, box-shadow 0.3s;
+}
+
+/* --- Premium Frontend Enhancements --- */
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--bg-tertiary);
+    border-radius: 20px;
+    border: 2px solid var(--bg-primary);
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-primary);
+}
+
+/* Background floating glow blobs */
+.glow-blobs {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    overflow: hidden;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.glow-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.15;
+    mix-blend-mode: screen;
+    animation: drift 20s infinite alternate ease-in-out;
+}
+
+[data-theme="light"] .glow-blob {
+    opacity: 0.06;
+}
+
+.glow-blob-1 {
+    width: 500px;
+    height: 500px;
+    background: var(--accent-primary);
+    top: -100px;
+    left: -100px;
+    animation-duration: 18s;
+}
+
+.glow-blob-2 {
+    width: 600px;
+    height: 600px;
+    background: var(--accent-secondary);
+    bottom: -150px;
+    right: -100px;
+    animation-delay: -5s;
+    animation-duration: 25s;
+}
+
+.glow-blob-3 {
+    width: 400px;
+    height: 400px;
+    background: #3b82f6; /* Cyber blue */
+    top: 35%;
+    left: 45%;
+    animation-delay: -10s;
+    animation-duration: 22s;
+}
+
+@keyframes drift {
+    0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+    50% { transform: translate(100px, 60px) scale(1.15) rotate(180deg); }
+    100% { transform: translate(-60px, -100px) scale(0.85) rotate(360deg); }
+}
+
+/* Premium input controls glassmorphism */
+.form-control {
+    background: rgba(var(--accent-primary-rgb), 0.03);
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(4px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.form-control:focus {
+    border-color: var(--accent-primary);
+    background: rgba(var(--accent-primary-rgb), 0.08);
+    box-shadow: 0 0 16px rgba(var(--accent-primary-rgb), 0.2), inset 0 2px 4px rgba(0, 0, 0, 0.02);
+    transform: translateY(-1px);
+}
+
+/* Shimmer shine animation on active sidebar item */
+.sidebar-item.active a {
+    color: #fff;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)) !important;
+    box-shadow: 0 8px 24px rgba(var(--accent-primary-rgb), 0.35);
+    position: relative;
+    overflow: hidden;
+}
+
+.sidebar-item.active a::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%; width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    animation: shine 4s infinite ease-in-out;
+}
+
+@keyframes shine {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* Sidebar Menu Hover Effects */
+.sidebar-item a:hover i {
+    transform: scale(1.18) rotate(6deg);
+    color: var(--accent-primary);
+}
+
+.sidebar-item a i {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s;
+}
+
+/* Metric text glow & value improvements */
+.metric-info .value {
+    background: linear-gradient(135deg, var(--text-primary), #d9f99d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 20px rgba(var(--accent-primary-rgb), 0.15);
+}
+
+[data-theme="light"] .metric-info .value {
+    background: linear-gradient(135deg, var(--text-primary), var(--accent-primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
+}
+
+/* Metric card neon hover */
+.metric-card:hover {
+    border-color: rgba(var(--accent-primary-rgb), 0.35);
+    box-shadow: 0 12px 36px 0 rgba(var(--accent-primary-rgb), 0.12), var(--card-shadow);
+}
+
+/* Table Hover enhancements */
+.table-custom tbody tr {
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.table-custom tbody tr:hover {
+    background-color: rgba(var(--accent-primary-rgb), 0.05) !important;
+    transform: scale(1.002) translateZ(0);
 }

@@ -50,7 +50,7 @@ def login():
         username = request.form.get('username').strip()
         password = request.form.get('password')
         
-        user = User.query.filter_by(username=username).first()
+        user = User.query.filter((User.username == username) | (User.email == username)).first()
         if user and user.check_password(password):
             session['user_id'] = user.id
             session['username'] = user.username
@@ -99,3 +99,39 @@ def forgot_password():
             flash('No account registered with that email address.', 'danger')
             
     return render_template('forgot_password.html')
+
+@auth_bp.route('/change-password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    if request.method == 'POST':
+        current_password = request.form.get('current_password')
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+        
+        user = db.session.get(User, session['user_id'])
+        
+        if not user.check_password(current_password):
+            flash('Incorrect current password.', 'danger')
+            return redirect(url_for('auth.change_password'))
+            
+        if new_password != confirm_password:
+            flash('New password and confirmation do not match.', 'danger')
+            return redirect(url_for('auth.change_password'))
+            
+        if len(new_password) < 6:
+            flash('New password must be at least 6 characters long.', 'danger')
+            return redirect(url_for('auth.change_password'))
+            
+        user.set_password(new_password)
+        db.session.commit()
+        
+        flash('Your password has been changed successfully.', 'success')
+        # Redirect to appropriate dashboard
+        if user.role == 'admin':
+            return redirect(url_for('admin.dashboard'))
+        elif user.role == 'faculty':
+            return redirect(url_for('faculty.dashboard'))
+        elif user.role == 'student':
+            return redirect(url_for('student.dashboard'))
+            
+    return render_template('change_password.html')

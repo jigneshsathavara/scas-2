@@ -232,6 +232,30 @@ document.addEventListener('DOMContentLoaded', () => {
         
         animate();
     }
+
+    // 7. 3D Tilt Effect on Metric Cards
+    const tiltCards = document.querySelectorAll('.metric-card');
+    tiltCards.forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const cardWidth = rect.width;
+            const cardHeight = rect.height;
+            const centerX = rect.left + cardWidth / 2;
+            const centerY = rect.top + cardHeight / 2;
+            const mouseX = e.clientX - centerX;
+            const mouseY = e.clientY - centerY;
+            
+            // Calculate rotation values (max 8 degrees tilt)
+            const rotateX = (-8 * (mouseY / (cardHeight / 2))).toFixed(2);
+            const rotateY = (8 * (mouseX / (cardWidth / 2))).toFixed(2);
+            
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)';
+        });
+    });
 });
 
 // Helper functions for global modals

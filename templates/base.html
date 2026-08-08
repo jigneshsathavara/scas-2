@@ -25,6 +25,11 @@
 </head>
 <body>
     <canvas id="ambient-canvas"></canvas>
+    <div class="glow-blobs">
+        <div class="glow-blob glow-blob-1"></div>
+        <div class="glow-blob glow-blob-2"></div>
+        <div class="glow-blob glow-blob-3"></div>
+    </div>
     <div class="toast-container">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -120,6 +125,12 @@
             
             <div class="sidebar-footer">
                 <ul class="sidebar-menu">
+                    <li class="sidebar-item {% if 'change-password' in request.path %}active{% endif %}">
+                        <a href="{{ url_for('auth.change_password') }}">
+                            <i data-lucide="key-round"></i>
+                            <span>Change Password</span>
+                        </a>
+                    </li>
                     <li class="sidebar-item">
                         <a href="{{ url_for('auth.logout') }}" style="color: var(--color-danger);">
                             <i data-lucide="log-out"></i>

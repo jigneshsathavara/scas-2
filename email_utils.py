@@ -20,10 +20,10 @@ Your account on the Smart College Analytics System has been {"reset" if is_reset
 
 Here are your portal access credentials:
 👉 Portal Role: {role.upper()}
-👉 Username / ID: {username}
-👉 Temporary Password: {password}
+👉 Login ID (Email): {to_email}
+👉 Password: {password}
 
-⚠️ IMPORTANT NOTICE: This is a system auto-generated or default password.
+⚠️ IMPORTANT NOTICE: This is a default/temporary password.
 For security reasons, you are kindly requested to log in and change your password immediately.
 
 Best regards,
@@ -56,11 +56,24 @@ Smart College Portal Support Team
     except Exception as e:
         print(f"Error writing to sent_emails.log: {str(e)}")
 
-    # 3. Attempt real SMTP delivery if config variables are set in environment or Config
-    smtp_server = os.environ.get('SMTP_SERVER')
-    smtp_port = os.environ.get('SMTP_PORT')
-    smtp_user = os.environ.get('SMTP_USER')
-    smtp_pass = os.environ.get('SMTP_PASS')
+    # 3. Attempt real SMTP delivery by loading credentials dynamically from .env
+    env_vars = {}
+    env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env')
+    if os.path.exists(env_path):
+        try:
+            with open(env_path, 'r', encoding='utf-8') as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#') and '=' in line:
+                        k, v = line.split('=', 1)
+                        env_vars[k.strip()] = v.strip().strip("'").strip('"')
+        except Exception:
+            pass
+
+    smtp_server = env_vars.get('SMTP_SERVER') or os.environ.get('SMTP_SERVER')
+    smtp_port = env_vars.get('SMTP_PORT') or os.environ.get('SMTP_PORT')
+    smtp_user = env_vars.get('SMTP_USER') or os.environ.get('SMTP_USER')
+    smtp_pass = env_vars.get('SMTP_PASS') or os.environ.get('SMTP_PASS')
     
     if not smtp_server or not smtp_user or not smtp_pass:
         try:
@@ -77,6 +90,20 @@ Smart College Portal Support Team
     else:
         smtp_port = int(smtp_port)
         
+    # Check if app is in testing mode, skip real SMTP delivery
+    try:
+        from flask import current_app
+        if current_app and current_app.config.get('TESTING'):
+            print(f"Testing Mode Active: Skipping real SMTP delivery to {to_email}.")
+            return True
+    except Exception:
+        pass
+
+    # Check if using default placeholders, skip sending in that case to avoid timeouts/auth errors
+    if smtp_user == 'your-email@gmail.com' or smtp_pass == 'your-app-password':
+        print(f"SMTP Config: Using default credentials. Skipping SMTP delivery to {to_email}. Saved to sent_emails.log.")
+        return True
+
     if smtp_server and smtp_user and smtp_pass:
         try:
             msg = MIMEMultipart()

@@ -91,6 +91,7 @@ def users():
                     batch_id=batch_id, course_id=course_id, phone=phone
                 )
                 db.session.add(stud_profile)
+                db.session.flush() # Populate ID for SQLite
                 
                 # Setup a default fee payment record for analytics testing
                 fee_payment = FeePayment(
@@ -100,6 +101,11 @@ def users():
                 db.session.add(fee_payment)
                 
             db.session.commit()
+            
+            # Trigger credentials email for manually created user
+            from email_utils import send_credentials_email
+            send_credentials_email(email, name, role, username, password)
+            
             flash(f'Successfully created {role} user: {name}', 'success')
             
         elif action == 'edit':

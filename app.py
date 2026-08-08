@@ -15,9 +15,11 @@ if os.path.exists('.env'):
                 os.environ[key.strip()] = val_clean
 
 
-def create_app():
+def create_app(test_config=None):
     app = Flask(__name__)
     app.config.from_object(Config)
+    if test_config:
+        app.config.update(test_config)
     
     db.init_app(app)
     
@@ -63,6 +65,22 @@ app = create_app()
 
 if __name__ == '__main__':
     # Build database tables if they do not exist
-    with app.app_context():
-        db.create_all()
+    try:
+        with app.app_context():
+            db.create_all()
+    except Exception as e:
+        import sys
+        print("\n" + "="*80)
+        print(" SCAS SYSTEM STARTUP ERROR: DATABASE CONNECTION FAILED ")
+        print("="*80)
+        print(f"Could not connect to the database at: {app.config.get('SQLALCHEMY_DATABASE_URI')}")
+        print("\nPlease verify that:")
+        print(" 1. Your MySQL server is running (e.g. via XAMPP, WAMP, or Windows Services).")
+        print(" 2. The database 'scas_db' exists (or your user has permission to create it).")
+        print(" 3. The username and password in config.py / DATABASE_URL are correct.")
+        print("-"*80)
+        print(f"Error Details: {e}")
+        print("="*80 + "\n")
+        sys.exit(1)
+
     app.run(debug=True, host='127.0.0.1', port=5000)
