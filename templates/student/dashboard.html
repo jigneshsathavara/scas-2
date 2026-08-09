@@ -116,9 +116,14 @@
     const labels = subjectAttendance.map(item => item.subject_code);
     const rates = subjectAttendance.map(item => item.rate);
     
+    const dangerColorRGB = getThemeColor('--color-danger-rgb') || '244, 63, 94';
+    const primaryColorRGB = getThemeColor('--accent-primary-rgb') || '139, 92, 246';
+    const dangerColor = getThemeColor('--color-danger') || '#f43f5e';
+    const primaryColor = getThemeColor('--accent-primary') || '#8b5cf6';
+
     // Bar Colors: Highlight subjects below 75% in red, others in violet
-    const barColors = subjectAttendance.map(item => item.rate < 75.0 ? 'rgba(239, 68, 68, 0.75)' : 'rgba(139, 92, 246, 0.75)');
-    const borderColors = subjectAttendance.map(item => item.rate < 75.0 ? '#ef4444' : '#8b5cf6');
+    const barColors = subjectAttendance.map(item => item.rate < 75.0 ? `rgba(${dangerColorRGB}, 0.75)` : `rgba(${primaryColorRGB}, 0.75)`);
+    const borderColors = subjectAttendance.map(item => item.rate < 75.0 ? dangerColor : primaryColor);
 
     const ctx = document.getElementById('studentAttendanceChart').getContext('2d');
     new Chart(ctx, {

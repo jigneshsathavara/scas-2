@@ -184,8 +184,8 @@
             datasets: [{
                 label: 'Students Enrolled',
                 data: courseCounts,
-                backgroundColor: 'rgba(139, 92, 246, 0.75)',
-                borderColor: '#8b5cf6',
+                backgroundColor: `rgba(${getThemeColor('--accent-primary-rgb') || '139, 92, 246'}, 0.75)`,
+                borderColor: primaryColor,
                 borderWidth: 2,
                 borderRadius: 8,
                 barThickness: 35

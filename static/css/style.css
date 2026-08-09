@@ -14,10 +14,14 @@
     --accent-primary-hover: #7c3aed;
     --accent-primary-rgb: 139, 92, 246;
     --accent-secondary: #ec4899;  /* Cyber Pink / Neon Rose */
+    --accent-secondary-rgb: 236, 72, 153;
     
     --color-success: #10b981;     /* Emerald green */
+    --color-success-rgb: 16, 185, 129;
     --color-warning: #f59e0b;     /* Amber yellow */
+    --color-warning-rgb: 245, 158, 11;
     --color-danger: #f43f5e;      /* Crimson red */
+    --color-danger-rgb: 244, 63, 94;
     
     --glass-bg: rgba(15, 11, 28, 0.75);
     --glass-border: rgba(139, 92, 246, 0.16);
@@ -26,21 +30,30 @@
 }
 
 [data-theme="light"] {
-    --bg-primary: #f8fafc;
-    --bg-secondary: #ffffff;
-    --bg-tertiary: #f1f5f9;
-    --border-color: rgba(0, 0, 0, 0.08);
-    --text-primary: #0f172a;
-    --text-secondary: #64748b;
+    /* Premium Lavender Crystal Light Theme */
+    --bg-primary: #f5f3ff;        /* Soft Pastel Lavender */
+    --bg-secondary: #ffffff;      /* Pure Crystal White Cards */
+    --bg-tertiary: #ede9fe;       /* Elegant Amethyst Tint */
+    --border-color: rgba(139, 92, 246, 0.15); /* Soft Violet Tinted Border */
+    --text-primary: #1e1b4b;      /* Deeper Indigo/Midnight Violet */
+    --text-secondary: #7c729e;    /* Amethyst Gray Muted Text */
     
-    --accent-primary: #4f46e5;
-    --accent-primary-hover: #4338ca;
-    --accent-primary-rgb: 79, 70, 229;
-    --accent-secondary: #0ea5e9;
+    --accent-primary: #8b5cf6;    /* Vibrant Violet matching dark theme for brand consistency */
+    --accent-primary-hover: #7c3aed;
+    --accent-primary-rgb: 139, 92, 246;
+    --accent-secondary: #ec4899;  /* Cyber Pink / Neon Rose */
+    --accent-secondary-rgb: 236, 72, 153;
     
-    --glass-bg: rgba(255, 255, 255, 0.8);
-    --glass-border: rgba(0, 0, 0, 0.06);
-    --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+    --color-success: #10b981;
+    --color-success-rgb: 16, 185, 129;
+    --color-warning: #f59e0b;
+    --color-warning-rgb: 245, 158, 11;
+    --color-danger: #ef4444;
+    --color-danger-rgb: 239, 68, 68;
+    
+    --glass-bg: rgba(255, 255, 255, 0.78);
+    --glass-border: rgba(139, 92, 246, 0.18);
+    --card-shadow: 0 10px 30px rgba(124, 58, 237, 0.06), 0 1px 3px rgba(124, 58, 237, 0.02);
 }
 
 /* --- Base Rules --- */
@@ -216,6 +229,11 @@ body {
     stroke-width: 2px;
 }
 
+[data-theme="light"] .theme-toggle-btn svg {
+    color: #6366f1 !important; /* Indigo outline for moon */
+    fill: #818cf8 !important;  /* Soft indigo fill for moon */
+}
+
 .user-profile-widget {
     display: flex;
     align-items: center;
@@ -359,6 +377,12 @@ body {
     font-size: 0.95rem;
 }
 
+/* Placeholder Text styling */
+::placeholder, .form-control::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.65;
+}
+
 .form-control option {
     background-color: var(--bg-secondary);
     color: var(--text-primary);
@@ -463,7 +487,7 @@ body {
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    background: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.1) 0%, rgba(0, 0, 0, 0) 90.2%), var(--bg-primary);
+    background: radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.12) 0%, transparent 80%), var(--bg-primary);
 }
 
 .login-card {

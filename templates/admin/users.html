@@ -8,13 +8,13 @@
     </div>
     <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
         <form action="{{ url_for('admin.send_all_students_credentials') }}" method="POST" onsubmit="return confirm('This will reset passwords for ALL students and email them their new credentials. Proceed?');" style="display: inline;">
-            <button type="submit" class="btn btn-secondary" style="border: 1px solid var(--accent-primary); background: rgba(139, 92, 246, 0.05); color: var(--text-primary); display: inline-flex; align-items: center; gap: 0.5rem;" title="Email All Students">
+            <button type="submit" class="btn btn-secondary" style="border: 1px solid var(--accent-primary); background: rgba(var(--accent-primary-rgb), 0.05); color: var(--text-primary); display: inline-flex; align-items: center; gap: 0.5rem;" title="Email All Students">
                 <i data-lucide="mail"></i>
                 <span>Email All Students</span>
             </button>
         </form>
         <form action="{{ url_for('admin.send_all_faculty_credentials') }}" method="POST" onsubmit="return confirm('This will reset passwords for ALL faculty members and email them their new credentials. Proceed?');" style="display: inline;">
-            <button type="submit" class="btn btn-secondary" style="border: 1px solid var(--accent-secondary); background: rgba(236, 72, 153, 0.05); color: var(--text-primary); display: inline-flex; align-items: center; gap: 0.5rem;" title="Email All Faculty">
+            <button type="submit" class="btn btn-secondary" style="border: 1px solid var(--accent-secondary); background: rgba(var(--accent-secondary-rgb), 0.05); color: var(--text-primary); display: inline-flex; align-items: center; gap: 0.5rem;" title="Email All Faculty">
                 <i data-lucide="mail"></i>
                 <span>Email All Faculty</span>
             </button>
@@ -111,7 +111,7 @@
                             </button>
                             {% if u.username != 'admin' %}
                             <form action="{{ url_for('admin.send_credentials', user_id=u.id) }}" method="POST" onsubmit="return confirm('Reset password and email login credentials to {{ u.name }}?');" style="display: inline-block;">
-                                <button type="submit" class="btn btn-secondary" style="padding: 0.4rem 0.6rem; font-size: 0.8rem; background: rgba(139, 92, 246, 0.15); border-color: rgba(139, 92, 246, 0.3); color: var(--accent-primary);" title="Send Credentials Email">
+                                <button type="submit" class="btn btn-secondary" style="padding: 0.4rem 0.6rem; font-size: 0.8rem; background: rgba(var(--accent-primary-rgb), 0.15); border-color: rgba(var(--accent-primary-rgb), 0.3); color: var(--accent-primary);" title="Send Credentials Email">
                                     <i data-lucide="mail" style="width: 14px; height: 14px;"></i>
                                 </button>
                             </form>
