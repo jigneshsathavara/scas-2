@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Error - Smart College Analytics System</title>
+    <script>
+        (function() {
+            let currentTheme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+        })();
+    </script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .error-card {
+            background: rgba(18, 22, 34, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            border-radius: 20px;
+            padding: 2.5rem;
+            max-width: 620px;
+            width: 90%;
+            margin: 3rem auto;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+        .error-icon {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 1.5rem;
+            border-radius: 50%;
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .error-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary, #f1f5f9);
+            margin-bottom: 0.75rem;
+        }
+        .error-desc {
+            color: var(--text-secondary, #94a3b8);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1.75rem;
+        }
+        .troubleshoot-box {
+            text-align: left;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1.75rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary, #cbd5e1);
+        }
+        .troubleshoot-box strong {
+            color: var(--accent-secondary, #38bdf8);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .troubleshoot-box ul {
+            margin: 0;
+            padding-left: 1.25rem;
+        }
+        .troubleshoot-box li {
+            margin-bottom: 0.35rem;
+        }
+        details.tech-details {
+            text-align: left;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1.75rem;
+            font-size: 0.8rem;
+        }
+        details.tech-details summary {
+            cursor: pointer;
+            color: var(--text-secondary, #94a3b8);
+            font-weight: 600;
+            user-select: none;
+        }
+        details.tech-details pre {
+            margin-top: 0.75rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+            color: #f87171;
+            font-family: monospace;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="login-container">
+    <div class="glow-blobs">
+        <div class="glow-blob glow-blob-1"></div>
+        <div class="glow-blob glow-blob-2"></div>
+    </div>
+
+    <div class="error-card">
+        <div class="error-icon">
+            <i data-lucide="alert-triangle" style="width: 36px; height: 36px;"></i>
+        </div>
+        
+        <h1 class="error-title">Application Error</h1>
+        <p class="error-desc">
+            The server encountered an issue while processing your request. If this is a new Vercel deployment, please check your database connection.
+        </p>
+
+        <div class="troubleshoot-box">
+            <strong><i data-lucide="wrench" style="width:14px; height:14px; display:inline; vertical-align:-2px;"></i> Deployment Troubleshooting Guide:</strong>
+            <ul>
+                <li><strong>Remote Database:</strong> Set <code>DATABASE_URL</code> or <code>POSTGRES_URL</code> in Vercel Project Settings &rarr; Environment Variables.</li>
+                <li><strong>Localhost check:</strong> Ensure you are not pointing to <code>localhost</code> in Vercel settings (serverless containers cannot reach local MySQL).</li>
+                <li><strong>Logs:</strong> Check your real-time serverless logs in the Vercel Dashboard under the <strong>Functions</strong> or <strong>Logs</strong> tab.</li>
+            </ul>
+        </div>
+
+        {% if traceback %}
+        <details class="tech-details">
+            <summary>View Technical Details</summary>
+            <pre>{{ traceback }}</pre>
+        </details>
+        {% endif %}
+
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+            <a href="{{ url_for('auth.login') }}" class="btn btn-primary" style="padding: 0.75rem 1.5rem; text-decoration: none;">
+                <i data-lucide="arrow-left"></i>
+                <span>Return to Login</span>
+            </a>
+            <button onclick="window.location.reload()" class="btn btn-secondary" style="padding: 0.75rem 1.5rem;">
+                <i data-lucide="refresh-cw"></i>
+                <span>Retry</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

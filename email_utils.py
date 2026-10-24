@@ -5,8 +5,17 @@ from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 
 # Path to log file for sent emails
-if os.environ.get('VERCEL') or os.environ.get('AWS_LAMBDA_FUNCTION_NAME'):
-    LOG_FILE = '/tmp/sent_emails.log'
+is_serverless = bool(
+    os.environ.get('VERCEL') or 
+    os.environ.get('VERCEL_ENV') or 
+    os.environ.get('AWS_LAMBDA_FUNCTION_NAME') or 
+    os.environ.get('LAMBDA_TASK_ROOT') or
+    not os.access(os.path.dirname(os.path.abspath(__file__)), os.W_OK)
+)
+
+if is_serverless:
+    import tempfile
+    LOG_FILE = os.path.join(tempfile.gettempdir(), 'sent_emails.log')
 else:
     LOG_FILE = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'sent_emails.log')
 
