@@ -155,3 +155,4 @@ if __name__ == '__main__':
         print(f"Server Database URI: {app.config.get('SQLALCHEMY_DATABASE_URI')}")
 
     app.run(debug=True, host='127.0.0.1', port=5000)
+
