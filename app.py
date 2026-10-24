@@ -12,7 +12,7 @@ is_serverless = bool(
     not os.access(os.path.dirname(os.path.abspath(__file__)), os.W_OK)
 )
 
-# Manual .env loading on startup (in local development only)
+    # Manual .env loading on startup (in local development only)
 if not is_serverless and os.path.exists('.env'):
     with open('.env', 'r', encoding='utf-8') as f: 
         for line in f:
