@@ -98,6 +98,13 @@ def create_app(test_config=None):
         if not _db_initialized:
             init_db(app)
 
+    @app.route('/api')
+    @app.route('/api/')
+    @app.route('/api/index')
+    @app.route('/api/index.py')
+    def api_entry_redirect():
+        return redirect(url_for('index'))
+
     @app.route('/')
     def index():
         if 'user_id' in session:
