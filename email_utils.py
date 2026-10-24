@@ -4,8 +4,11 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 
-# Path to local log file for sent emails
-LOG_FILE = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'sent_emails.log')
+# Path to log file for sent emails
+if os.environ.get('VERCEL') or os.environ.get('AWS_LAMBDA_FUNCTION_NAME'):
+    LOG_FILE = '/tmp/sent_emails.log'
+else:
+    LOG_FILE = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'sent_emails.log')
 
 def send_credentials_email(to_email, name, role, username, password, is_reset=False):
     subject = "Smart College Portal - Temporary Password Reset" if is_reset else "Smart College Portal - Account Created"

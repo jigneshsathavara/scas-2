@@ -1,14 +1,12 @@
-from app import create_app
 from models.models import db, User, Course, Batch, FacultyProfile, StudentProfile, Subject, FeePayment, Schedule, Attendance, Mark, Result, LeaveApplication
 from datetime import datetime, date, timedelta
 
-app = create_app()
-
-def seed_database():
+def seed_database(drop_first=True):
     print("Starting database seeding...")
     
-    # Drop all and recreate database tables
-    db.drop_all()
+    # Drop all and recreate database tables only when requested
+    if drop_first:
+        db.drop_all()
     db.create_all()
     
     # 1. Create Users
@@ -138,5 +136,6 @@ def seed_database():
     print("Database seeding completed successfully (faculty, students, schedules, attendance, marks, results, and leaves populated)!")
 
 if __name__ == '__main__':
+    from app import app
     with app.app_context():
-        seed_database()
+        seed_database(drop_first=True)

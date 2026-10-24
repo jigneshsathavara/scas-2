@@ -1,22 +1,49 @@
+# Environment variables & secrets
+.env
+.env.*
+!.env.example
+
+# Python cache & compiled bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Virtual Environments
+.venv/
+.venv*/
+venv/
+ENV/
+env/
+
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# Databases
+*.db
+*.sqlite
+*.sqlite3
 
-# Editor directories and files
+# Vercel deployment cache
+.vercel/
+
+# Node / frontend build output
+node_modules/
+dist/
+dist-ssr/
+
+# IDE & OS files
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
+Thumbs.db
 *.suo
 *.ntvs*
 *.njsproj

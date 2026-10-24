@@ -1,0 +1,40 @@
+# Version control and environments
+.git
+.gitignore
+.env
+.env.*
+.venv
+.venv*
+venv/
+ENV/
+
+# Python cache & compiler output
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache
+
+# Large presentations, documentation, and office files
+*.pptx
+*.docx
+*.pdf
+generate_*.py
+verify_system.py
+sent_emails.log
+ppt*
+
+# Sample CSVs & local databases
+*.db
+*.sqlite
+*.sqlite3
+database.sql
+faculty_sample.csv
+results_sample.csv
+students_sample.csv
+subjects_sample.csv
+setup_mysql.bat
+run_server.bat
+
+# Root diagrams
+scas_*.png

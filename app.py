@@ -3,20 +3,27 @@ from flask import Flask, redirect, url_for, session
 from config import Config
 from models.models import db, User
 
-# Manual .env loading on startup
+# Manual .env loading on startup (without overwriting existing environment variables)
 if os.path.exists('.env'):
     with open('.env', 'r', encoding='utf-8') as f:
         for line in f:
             line = line.strip()
             if line and not line.startswith('#') and '=' in line:
                 key, val = line.split('=', 1)
-                # Strip potential surrounding quotes
-                val_clean = val.strip().strip("'").strip('"')
-                os.environ[key.strip()] = val_clean
+                k = key.strip()
+                if k not in os.environ:
+                    val_clean = val.strip().strip("'").strip('"')
+                    os.environ[k] = val_clean
 
+base_dir = os.path.abspath(os.path.dirname(__file__))
 
 def create_app(test_config=None):
-    app = Flask(__name__)
+    app = Flask(
+        __name__,
+        template_folder=os.path.join(base_dir, 'templates'),
+        static_folder=os.path.join(base_dir, 'static'),
+        static_url_path='/static'
+    )
     app.config.from_object(Config)
     if test_config:
         app.config.update(test_config)
