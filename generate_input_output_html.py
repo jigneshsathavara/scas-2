@@ -1,0 +1,957 @@
+"""
+Generate interactive HTML suite for SCAS Input Design & Output Design
+"""
+
+import os
+
+html_content = """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCAS Input Design & Output Design Specification — Interactive Suite</title>
+    <style>
+        :root {
+            --primary: #1a365d;
+            --primary-dark: #0f172a;
+            --accent: #3182ce;
+            --accent-light: #ebf8ff;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --border: #cbd5e1;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #d97706;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 30px 20px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: linear-gradient(135deg, #0f172a 0%, #1a365d 100%);
+            color: #ffffff;
+            padding: 35px 30px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+        }
+
+        header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        header p {
+            color: #93c5fd;
+            font-size: 15px;
+            margin-bottom: 18px;
+        }
+
+        .badge-bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .badge-pill {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            backdrop-filter: blur(4px);
+        }
+
+        .download-bar {
+            margin-top: 18px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn-download-ppt {
+            background: #22c55e;
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-download-ppt:hover {
+            background: #16a34a;
+            transform: translateY(-2px);
+        }
+
+        .quick-nav {
+            background: #ffffff;
+            padding: 16px 20px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .quick-nav span {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-right: 5px;
+        }
+
+        .quick-nav a {
+            display: inline-block;
+            padding: 5px 11px;
+            border-radius: 6px;
+            background: #f1f5f9;
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .quick-nav a:hover {
+            background: var(--accent);
+            color: #ffffff;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 35px 0 15px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .design-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            margin-bottom: 40px;
+            overflow: hidden;
+            scroll-margin-top: 20px;
+        }
+
+        .design-header {
+            padding: 20px 24px;
+            background: #f8fafc;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .design-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .meta-row {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            font-size: 14px;
+        }
+
+        .meta-label {
+            font-weight: 700;
+            color: #475569;
+            width: 170px;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .meta-val-name {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .meta-val-desc {
+            font-size: 14.5px;
+            font-weight: 500;
+            color: #1e293b;
+        }
+
+        .meta-val-tag {
+            display: inline-block;
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: monospace;
+        }
+
+        .design-content-grid {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 20px;
+            padding: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .design-content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Explicit PowerPoint Copy Table */
+        .ppt-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            border: 2px solid #1e293b;
+        }
+
+        .ppt-table th {
+            background-color: #1a365d;
+            color: #ffffff;
+            font-weight: 700;
+            padding: 9px 12px;
+            text-align: left;
+            border: 1px solid #1e293b;
+            font-size: 12.5px;
+            letter-spacing: 0.3px;
+        }
+
+        .ppt-table td {
+            padding: 8px 12px;
+            border: 1px solid #cbd5e1;
+            color: #1e293b;
+            vertical-align: middle;
+        }
+
+        .ppt-table tr:nth-child(even) td {
+            background-color: #f8fafc;
+        }
+
+        .ppt-table tr:hover td {
+            background-color: #eff6ff;
+        }
+
+        .ppt-table td.col-field {
+            font-weight: 700;
+            color: #1a365d;
+        }
+
+        .ppt-table td.col-type {
+            font-family: "Consolas", monospace;
+            font-size: 12px;
+            color: #4338ca;
+            font-weight: 600;
+        }
+
+        .ppt-table td.center {
+            text-align: center;
+        }
+
+        .badge-req {
+            background: #fee2e2;
+            color: #b91c1c;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        .badge-opt {
+            background: #dcfce7;
+            color: #15803d;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        /* UI Wireframe Mockup Container */
+        .ui-wireframe {
+            background: #ffffff;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .ui-wireframe-header {
+            background: var(--primary);
+            color: #ffffff;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .ui-dots {
+            display: flex;
+            gap: 5px;
+        }
+
+        .ui-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+        }
+
+        .ui-dot.red { background: #ef4444; }
+        .ui-dot.yellow { background: #f59e0b; }
+        .ui-dot.green { background: #22c55e; }
+
+        .ui-wireframe-body {
+            padding: 16px;
+            background: #f8fafc;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #475569;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 7px 10px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            font-size: 12.5px;
+            color: #1e293b;
+        }
+
+        .btn-action {
+            display: block;
+            width: 100%;
+            padding: 9px;
+            background: var(--accent);
+            color: #ffffff;
+            text-align: center;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 13px;
+            border: none;
+            cursor: pointer;
+            margin-top: 14px;
+        }
+
+        .rules-callout {
+            margin: 0 24px 24px 24px;
+            background: #f0fdf4;
+            border-left: 5px solid #16a34a;
+            border-top: 1px solid #bbf7d0;
+            border-right: 1px solid #bbf7d0;
+            border-bottom: 1px solid #bbf7d0;
+            border-radius: 0 8px 8px 0;
+            padding: 14px 18px;
+            font-size: 13px;
+            color: #166534;
+            line-height: 1.6;
+        }
+
+        .rules-callout strong {
+            color: #14532d;
+            font-size: 13.5px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .btn-copy {
+            background-color: #1a365d;
+            color: #ffffff;
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-copy:hover {
+            background-color: #2b6cb0;
+        }
+
+        .toast-msg {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background: #0f172a;
+            color: #ffffff;
+            padding: 12px 22px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(12px);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .toast-msg.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Smart College Analytics System (SCAS)</h1>
+        <p>Complete Input Design & Output Design Architecture Suite — Aligned with 13 Relational MySQL Tables</p>
+        <div class="badge-bar">
+            <span class="badge-pill">📥 12 Input Forms & Bulk Ingestion</span>
+            <span class="badge-pill">📤 10 Output Displays, Transcripts & Reports</span>
+            <span class="badge-pill">🛡️ Defensive Validation & RBAC Security</span>
+            <span class="badge-pill">🤖 Predictive AI Dropout Risk Engine</span>
+        </div>
+        <div class="download-bar">
+            <a class="btn-download-ppt" href="SCAS_Input_and_Output_Design.pptx" download>
+                📥 Download Full 25-Slide PowerPoint Deck (SCAS_Input_and_Output_Design.pptx)
+            </a>
+        </div>
+    </header>
+
+    <div class="quick-nav">
+        <span>Jump to Section:</span>
+        <a href="#sec-inputs">📥 All Input Designs</a>
+        <a href="#in-auth">1. Authentication</a>
+        <a href="#in-reset">2. Password Reset</a>
+        <a href="#in-change">3. Change Password</a>
+        <a href="#in-user">4. User Creation</a>
+        <a href="#in-csv">5. Bulk CSV Upload</a>
+        <a href="#in-curr">6. Curriculum Setup</a>
+        <a href="#in-att">7. Attendance Register</a>
+        <a href="#in-marks">8. CIE Marks Entry</a>
+        <a href="#in-sched">9. Timetable Setup</a>
+        <a href="#in-fee">10. Fee Gateway</a>
+        <a href="#in-leave">11. Leave Application</a>
+        <a href="#in-quiz">12. Diagnostic Test</a>
+        <a href="#sec-outputs">📤 All Output Designs</a>
+        <a href="#out-dash-admin">1. Admin Dashboard</a>
+        <a href="#out-dash-fac">2. Faculty AI Risk</a>
+        <a href="#out-dash-stu">3. Student Dashboard</a>
+        <a href="#out-trans">4. Academic Transcript</a>
+        <a href="#out-rec">5. Fee Receipt</a>
+        <a href="#out-att-reg">6. Defaulter Register</a>
+        <a href="#out-cie">7. CIE Mark Sheet</a>
+        <a href="#out-mail">8. Email Outputs</a>
+    </div>
+
+    <!-- SECTION 1: INPUT DESIGNS -->
+    <div class="section-title" id="sec-inputs">📥 PART 1: INPUT DESIGN SPECIFICATIONS</div>
+
+    <!-- INPUT 1: Authentication -->
+    <div class="design-card" id="in-auth">
+        <div class="design-header">
+            <div class="design-meta">
+                <div class="meta-row">
+                    <span class="meta-label">INPUT SCREEN:</span>
+                    <span class="meta-val-name">System Authentication & Portal Login (login.html)</span>
+                </div>
+                <div class="meta-row">
+                    <span class="meta-label">DATABASE ENTITY:</span>
+                    <span class="meta-val-desc"><span class="meta-val-tag">scas_users</span> (username, password_hash, role)</span>
+                </div>
+                <div class="meta-row">
+                    <span class="meta-label">AUTHORIZED ROLE:</span>
+                    <span class="meta-val-desc">Public / All Users (Automatic Role-Based Redirection)</span>
+                </div>
+            </div>
+            <button class="btn-copy" onclick="copyTable('tbl-in-1', 'Input 1: Authentication')">📋 Copy Table for PPT</button>
+        </div>
+        <div class="design-content-grid">
+            <div>
+                <table class="ppt-table" id="tbl-in-1">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;">FIELD NAME</th>
+                            <th style="width: 20%;">UI CONTROL</th>
+                            <th style="width: 20%;">DATA TYPE</th>
+                            <th style="width: 10%; text-align: center;">REQ?</th>
+                            <th style="width: 25%;">VALIDATION RULES</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="col-field">username / email</td>
+                            <td>Text Box</td>
+                            <td class="col-type">VARCHAR(120)</td>
+                            <td class="center"><span class="badge-req">YES</span></td>
+                            <td>Accepts either unique username or email.</td>
+                        </tr>
+                        <tr>
+                            <td class="col-field">password</td>
+                            <td>Password Box</td>
+                            <td class="col-type">VARCHAR(255)</td>
+                            <td class="center"><span class="badge-req">YES</span></td>
+                            <td>Checked against Scrypt cryptographic hash.</td>
+                        </tr>
+                        <tr>
+                            <td class="col-field">remember_me</td>
+                            <td>Checkbox</td>
+                            <td class="col-type">BOOLEAN</td>
+                            <td class="center"><span class="badge-opt">NO</span></td>
+                            <td>Preserves session cookie across browser restart.</td>
+                        </tr>
+                        <tr>
+                            <td class="col-field">csrf_token</td>
+                            <td>Hidden Field</td>
+                            <td class="col-type">VARCHAR(64)</td>
+                            <td class="center"><span class="badge-req">YES</span></td>
+                            <td>Synchronizer Token Pattern CSRF protection.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="ui-wireframe">
+                <div class="ui-wireframe-header">
+                    <div class="ui-dots"><div class="ui-dot red"></div><div class="ui-dot yellow"></div><div class="ui-dot green"></div></div>
+                    <span>SCAS Institutional Login</span>
+                    <span style="font-size: 10px; background: rgba(255,255,255,0.2); padding: 1px 6px; border-radius: 3px;">ALL ROLES</span>
+                </div>
+                <div class="ui-wireframe-body">
+                    <div class="form-group">
+                        <label class="form-label">Username or Institutional Email</label>
+                        <input class="form-control" type="text" value="admin@college.edu" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input class="form-control" type="password" value="••••••••••••" readonly>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; margin-top: 8px;">
+                        <label><input type="checkbox" checked disabled> Remember me</label>
+                        <span style="color: var(--accent); font-weight: 600;">Forgot Password?</span>
+                    </div>
+                    <button class="btn-action">Sign In to Portal</button>
+                </div>
+            </div>
+        </div>
+        <div class="rules-callout">
+            <strong>SECURITY & VALIDATION SPECIFICATIONS:</strong>
+            <div>&bull; Scrypt Password Verification: Passwords verified via Werkzeug check_password_hash(). Plaintext is never stored.</div>
+            <div>&bull; Multi-Role Gateway: Inspects session['role'] upon authentication and routes to /admin, /faculty, or /student.</div>
+        </div>
+    </div>
+
+    <!-- INPUT 7: Attendance Register -->
+    <div class="design-card" id="in-att">
+        <div class="design-header">
+            <div class="design-meta">
+                <div class="meta-row">
+                    <span class="meta-label">INPUT SCREEN:</span>
+                    <span class="meta-val-name">Faculty Daily Class Attendance Register (attendance.html)</span>
+                </div>
+                <div class="meta-row">
+                    <span class="meta-label">DATABASE ENTITY:</span>
+                    <span class="meta-val-desc"><span class="meta-val-tag">scas_attendance</span> (student_id, subject_id, date, status)</span>
+                </div>
+                <div class="meta-row">
+                    <span class="meta-label">AUTHORIZED ROLE:</span>
+                    <span class="meta-val-desc">Faculty Member (Restricted to assigned subjects)</span>
+                </div>
+            </div>
+            <button class="btn-copy" onclick="copyTable('tbl-in-7', 'Input 7: Attendance Register')">📋 Copy Table for PPT</button>
+        </div>
+        <div class="design-content-grid">
+            <div>
+                <table class="ppt-table" id="tbl-in-7">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;">FIELD NAME</th>
+                            <th style="width: 20%;">UI CONTROL</th>
+                            <th style="width: 20%;">DATA TYPE</th>
+                            <th style="width: 10%; text-align: center;">REQ?</th>
+                            <th style="width: 25%;">VALIDATION RULES</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="col-field">subject_id</td>
+                            <td>Dropdown Select</td>
+                            <td class="col-type">INT(11) [FK]</td>
+                            <td class="center"><span class="badge-req">YES</span></td>
+                            <td>Must match faculty_id in scas_subjects.</td>
+                        </tr>
+                        <tr>
+                            <td class="col-field">batch_id</td>
+                            <td>Dropdown Select</td>
+                            <td class="col-type">INT(11) [FK]</td>
+                            <td class="center"><span class="badge-req">YES</span></td>
+                            <td>Target student academic cohort.</td>
+                        </tr>
+                        <tr>
+                            <td class="col-field">date</td>
+                            <td>Date Picker</td>
+                            <td class="col-type">DATE</td>
+                            <td class="center"><span class="badge-req">YES</span></td>
+                            <td>Lecture date (defaults to today; YYYY-MM-DD).</td>
+                        </tr>
+                        <tr>
+                            <td class="col-field">status[student_id]</td>
+                            <td>Toggle Switch</td>
+                            <td class="col-type">VARCHAR(10)</td>
+                            <td class="center"><span class="badge-req">YES</span></td>
+                            <td>Radio choice: 'Present' or 'Absent'.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="ui-wireframe">
+                <div class="ui-wireframe-header">
+                    <div class="ui-dots"><div class="ui-dot red"></div><div class="ui-dot yellow"></div><div class="ui-dot green"></div></div>
+                    <span>Daily Class Attendance Register</span>
+                    <span style="font-size: 10px; background: rgba(255,255,255,0.2); padding: 1px 6px; border-radius: 3px;">FACULTY</span>
+                </div>
+                <div class="ui-wireframe-body">
+                    <div class="form-group">
+                        <label class="form-label">Subject</label>
+                        <input class="form-control" type="text" value="Theory of Computation (MCA-104)" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Lecture Date</label>
+                        <input class="form-control" type="text" value="2026-09-29 (Today)" readonly>
+                    </div>
+                    <div style="background: #e2e8f0; padding: 6px 10px; border-radius: 4px; font-size: 11px; margin-bottom: 8px; font-weight: 600;">
+                        ☑ Mark All Present (Quick Switch Enabled)
+                    </div>
+                    <div style="font-size: 12px; display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #cbd5e1;">
+                        <span>MCA24004 – Himanshu Goswami</span>
+                        <span style="color: var(--success); font-weight: 700;">● Present</span>
+                    </div>
+                    <div style="font-size: 12px; display: flex; justify-content: space-between; padding: 4px 0;">
+                        <span>MCA24005 – Jignesh Sathavara</span>
+                        <span style="color: var(--success); font-weight: 700;">● Present</span>
+                    </div>
+                    <button class="btn-action">Submit Attendance Sheet</button>
+                </div>
+            </div>
+        </div>
+        <div class="rules-callout">
+            <strong>BUSINESS & INTEGRITY RULES:</strong>
+            <div>&bull; Composite Unique Guard: (student_id, subject_id, date) prevents accidental duplicate entries on the same day.</div>
+            <div>&bull; Real-Time Trigger: Marking attendance recalculates individual student attendance percentages and updates AI risk scores immediately.</div>
+        </div>
+    </div>
+
+    <!-- SECTION 2: OUTPUT DESIGNS -->
+    <div class="section-title" id="sec-outputs">📤 PART 2: OUTPUT DESIGN SPECIFICATIONS</div>
+
+    <!-- OUTPUT 2: Faculty AI Risk Dashboard -->
+    <div class="design-card" id="out-dash-fac">
+        <div class="design-header">
+            <div class="design-meta">
+                <div class="meta-row">
+                    <span class="meta-label">OUTPUT DELIVERABLE:</span>
+                    <span class="meta-val-name">Faculty Academic Dashboard & AI Dropout Risk Alert Monitor</span>
+                </div>
+                <div class="meta-row">
+                    <span class="meta-label">ANALYTICS ENGINE:</span>
+                    <span class="meta-val-desc"><span class="meta-val-tag">Machine Learning Heuristic</span> (45% Attendance + 55% Midterm Scores)</span>
+                </div>
+                <div class="meta-row">
+                    <span class="meta-label">RECIPIENT ROLE:</span>
+                    <span class="meta-val-desc">Teaching Faculty & Academic Counselors</span>
+                </div>
+            </div>
+            <button class="btn-copy" onclick="copyTable('tbl-out-2', 'Output 2: AI Risk Dashboard')">📋 Copy Table for PPT</button>
+        </div>
+        <div class="design-content-grid">
+            <div>
+                <table class="ppt-table" id="tbl-out-2">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;">RISK CATEGORY</th>
+                            <th style="width: 20%;">SCORE RANGE</th>
+                            <th style="width: 20%;">VISUAL INDICATOR</th>
+                            <th style="width: 35%;">RECOMMENDED INTERVENTION ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="col-field" style="color: var(--danger);">High Academic Risk</td>
+                            <td>Score &ge; 65.0</td>
+                            <td><span class="badge-req">🔴 RED BADGE</span></td>
+                            <td>Immediate 1-on-1 counseling & guardian warning dispatch.</td>
+                        </tr>
+                        <tr>
+                            <td class="col-field" style="color: var(--warning);">Medium Academic Risk</td>
+                            <td>40.0 &le; Score &lt; 65.0</td>
+                            <td><span style="background: #fef3c7; color: #b45309; padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 11px;">🟡 YELLOW BADGE</span></td>
+                            <td>Targeted tutorial assignments & doubt-clearing sessions.</td>
+                        </tr>
+                        <tr>
+                            <td class="col-field" style="color: var(--success);">Low Academic Risk</td>
+                            <td>Score &lt; 40.0</td>
+                            <td><span class="badge-opt">🟢 GREEN BADGE</span></td>
+                            <td>Standard academic progression & honors project mentoring.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="ui-wireframe">
+                <div class="ui-wireframe-header">
+                    <div class="ui-dots"><div class="ui-dot red"></div><div class="ui-dot yellow"></div><div class="ui-dot green"></div></div>
+                    <span>Faculty AI Student Risk Monitor</span>
+                    <span style="font-size: 10px; background: rgba(255,255,255,0.2); padding: 1px 6px; border-radius: 3px;">PREDICTIVE AI</span>
+                </div>
+                <div class="ui-wireframe-body">
+                    <div style="background: #fef2f2; border: 1px solid #f87171; padding: 10px; border-radius: 6px; margin-bottom: 10px;">
+                        <div style="color: #b91c1c; font-weight: 800; font-size: 12px;">🔴 HIGH RISK: MCA24004 (Himanshu)</div>
+                        <div style="font-size: 11px; color: #7f1d1d; margin-top: 3px;">
+                            • Attendance: 62.5% (&lt; 75%) | Midterm: 58.0%<br>
+                            • Computed Risk Score: 68.4 / 100<br>
+                            • Action: Guardian alert pending.
+                        </div>
+                    </div>
+                    <div style="background: #f0fdf4; border: 1px solid #4ade80; padding: 10px; border-radius: 6px;">
+                        <div style="color: #15803d; font-weight: 800; font-size: 12px;">🟢 LOW RISK: MCA24005 (Jignesh)</div>
+                        <div style="font-size: 11px; color: #14532d; margin-top: 3px;">
+                            • Attendance: 93.3% | Midterm: 91.5%<br>
+                            • Computed Risk Score: 18.2 / 100 (On Track for Honors)
+                        </div>
+                    </div>
+                    <button class="btn-action" style="background: #1e3a8a; margin-top: 10px;">Export Defaulters & Dispatch Warnings</button>
+                </div>
+            </div>
+        </div>
+        <div class="rules-callout">
+            <strong>PREDICTIVE HEURISTIC ALGORITHM SPECIFICATION:</strong>
+            <div>&bull; Heuristic Formula: Risk_Score = [ 0.45 &times; (100 - Attendance_%) ] + [ 0.55 &times; (100 - Midterm_% ) ]</div>
+            <div>&bull; Early Attrition Warning: Detects at-risk students by week 4 of semester, enabling timely intervention prior to university examinations.</div>
+        </div>
+    </div>
+
+    <!-- OUTPUT 4: Academic Transcript -->
+    <div class="design-card" id="out-trans">
+        <div class="design-header">
+            <div class="design-meta">
+                <div class="meta-row">
+                    <span class="meta-label">OUTPUT DELIVERABLE:</span>
+                    <span class="meta-val-name">Semester Grade Statement & Official Academic Transcript</span>
+                </div>
+                <div class="meta-row">
+                    <span class="meta-label">DATABASE SOURCE:</span>
+                    <span class="meta-val-desc"><span class="meta-val-tag">scas_results</span> (SGPA / CGPA, credits, grades)</span>
+                </div>
+                <div class="meta-row">
+                    <span class="meta-label">FORMAT:</span>
+                    <span class="meta-val-desc">Print-Optimized Document (@media print) with Institutional Seal</span>
+                </div>
+            </div>
+            <button class="btn-copy" onclick="copyTable('tbl-out-4', 'Output 4: Transcript')">📋 Copy Table for PPT</button>
+        </div>
+        <div class="design-content-grid">
+            <div>
+                <table class="ppt-table" id="tbl-out-4">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;">MARKS RANGE</th>
+                            <th style="width: 20%;">LETTER GRADE</th>
+                            <th style="width: 20%;">GRADE POINTS</th>
+                            <th style="width: 35%;">ACADEMIC CLASSIFICATION</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="col-field">&ge; 90.0 %</td>
+                            <td class="col-type">Grade 'O'</td>
+                            <td>10.0 Points</td>
+                            <td>Outstanding Performance</td>
+                        </tr>
+                        <tr>
+                            <td class="col-field">80.0 – 89.9 %</td>
+                            <td class="col-type">Grade 'A+'</td>
+                            <td>9.0 Points</td>
+                            <td>Excellent Academic Mastery</td>
+                        </tr>
+                        <tr>
+                            <td class="col-field">70.0 – 79.9 %</td>
+                            <td class="col-type">Grade 'A'</td>
+                            <td>8.0 Points</td>
+                            <td>Very Good Standing</td>
+                        </tr>
+                        <tr>
+                            <td class="col-field">60.0 – 69.9 %</td>
+                            <td class="col-type">Grade 'B+'</td>
+                            <td>7.0 Points</td>
+                            <td>Good / Above Average</td>
+                        </tr>
+                        <tr>
+                            <td class="col-field">&lt; 50.0 %</td>
+                            <td class="col-type" style="color: var(--danger);">Grade 'F'</td>
+                            <td style="color: var(--danger);">0.0 Points</td>
+                            <td>Fail / Backlog (Requires Re-examination)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="ui-wireframe" style="border: 2px solid #0f172a;">
+                <div style="background: #1e3a8a; color: #ffffff; padding: 12px; text-align: center;">
+                    <div style="font-size: 11px; font-weight: 800; letter-spacing: 0.5px;">SMART COLLEGE OF ENGINEERING & TECH</div>
+                    <div style="font-size: 10px; color: #93c5fd; margin-top: 2px;">OFFICIAL SEMESTER GRADE TRANSCRIPT</div>
+                </div>
+                <div class="ui-wireframe-body" style="background: #ffffff;">
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
+                        <span><strong>Roll No:</strong> MCA24005</span>
+                        <span><strong>Name:</strong> Jignesh Sathavara</span>
+                        <span><strong>Semester:</strong> 1 (MCA)</span>
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 10px;">
+                        <tr style="background: #f1f5f9; font-weight: 700;">
+                            <th style="padding: 4px; border: 1px solid #cbd5e1; text-align: left;">Code</th>
+                            <th style="padding: 4px; border: 1px solid #cbd5e1; text-align: left;">Subject</th>
+                            <th style="padding: 4px; border: 1px solid #cbd5e1; text-align: center;">Credits</th>
+                            <th style="padding: 4px; border: 1px solid #cbd5e1; text-align: center;">Grade</th>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px; border: 1px solid #cbd5e1;">MCA-104</td>
+                            <td style="padding: 4px; border: 1px solid #cbd5e1;">Theory of Computation</td>
+                            <td style="padding: 4px; border: 1px solid #cbd5e1; text-align: center;">4</td>
+                            <td style="padding: 4px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700; color: var(--success);">O (10.0)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px; border: 1px solid #cbd5e1;">MCA-105</td>
+                            <td style="padding: 4px; border: 1px solid #cbd5e1;">Compiler Design</td>
+                            <td style="padding: 4px; border: 1px solid #cbd5e1; text-align: center;">4</td>
+                            <td style="padding: 4px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700; color: var(--accent);">A (8.0)</td>
+                        </tr>
+                    </table>
+                    <div style="background: #eff6ff; border: 1px solid #93c5fd; padding: 6px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; color: #1e3a8a; text-align: center;">
+                        SEMESTER SGPA: 9.00 / 10.00   |   RESULT: PASS (FIRST CLASS DIST.)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="rules-callout">
+            <strong>SGPA & CGPA MATHEMATICAL SPECIFICATION:</strong>
+            <div>&bull; SGPA Formula: SGPA = &sum;(Grade_Point_i &times; Credits_i) / &sum;(Credits_i) across all semester subjects.</div>
+            <div>&bull; Formal Verification: Includes digital cryptographic seal and Dean's authorized digital signature block.</div>
+        </div>
+    </div>
+
+</div>
+
+<div class="toast-msg" id="toast">Table copied with full borders! Ready to paste into PowerPoint (Ctrl+V).</div>
+
+<script>
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+        toast.innerText = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2600);
+    }
+
+    async function copyTable(tableId, tableName) {
+        const table = document.getElementById(tableId);
+        const clone = table.cloneNode(true);
+        clone.style.border = "2px solid #1A365D";
+        clone.style.borderCollapse = "collapse";
+        clone.style.fontFamily = "Calibri, Arial, sans-serif";
+        clone.style.fontSize = "11pt";
+        
+        const ths = clone.querySelectorAll('th');
+        ths.forEach(th => {
+            th.style.backgroundColor = "#1A365D";
+            th.style.color = "#FFFFFF";
+            th.style.fontWeight = "bold";
+            th.style.padding = "8px 10px";
+            th.style.border = "1px solid #1A365D";
+        });
+        
+        const tds = clone.querySelectorAll('td');
+        tds.forEach(td => {
+            td.style.padding = "6px 10px";
+            td.style.border = "1px solid #94A3B8";
+        });
+
+        const wrapper = document.createElement('div');
+        const header = document.createElement('h3');
+        header.innerText = tableName;
+        header.style.color = "#0F172A";
+        header.style.fontFamily = "Calibri, Arial, sans-serif";
+        header.style.marginBottom = "6px";
+        wrapper.appendChild(header);
+        wrapper.appendChild(clone);
+
+        try {
+            const blobHtml = new Blob([wrapper.innerHTML], { type: 'text/html' });
+            const blobText = new Blob([clone.innerText], { type: 'text/plain' });
+            const item = new ClipboardItem({ 'text/html': blobHtml, 'text/plain': blobText });
+            await navigator.clipboard.write([item]);
+            showToast(`✅ Table copied with full borders! Press Ctrl+V in PPT.`);
+        } catch (err) {
+            const range = document.createRange();
+            range.selectNode(table);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            document.execCommand('copy');
+            window.getSelection().removeAllRanges();
+            showToast(`✅ Table copied! Press Ctrl+V in PPT.`);
+        }
+    }
+</script>
+
+</body>
+</html>
+"""
+
+output_path1 = "d:\\SCAS-HG-OR\\scas-final\\input_output_design.html"
+with open(output_path1, "w", encoding="utf-8") as f:
+    f.write(html_content)
+
+output_path2 = "d:\\SCAS-HG-OR\\input_output_design.html"
+with open(output_path2, "w", encoding="utf-8") as f:
+    f.write(html_content)
+
+print(f"[SUCCESS] HTML Suite saved to: {output_path1} and {output_path2}")

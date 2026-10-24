@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Subject Grading Audit - Smart College Analytics System</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 2rem;
+            color: #1e293b;
+            background: white;
+        }
+        .report-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            border-bottom: 2px solid #0f172a;
+            padding-bottom: 1.5rem;
+        }
+        .report-header h1 {
+            margin: 0;
+            font-size: 2rem;
+            color: #0f172a;
+        }
+        .report-header p {
+            margin: 6px 0 0;
+            color: #64748b;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+        .report-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            border: 1px solid #cbd5e1;
+            padding: 12px;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+        th {
+            background-color: #f1f5f9;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        @media print {
+            body { padding: 0; }
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="report-header">
+        <h1>Smart College Analytics System</h1>
+        <p>Subject Academic Grading Audit Report</p>
+    </div>
+    
+    <div class="report-meta">
+        <div><strong>Subject:</strong> {{ subject.name }} ({{ subject.code }})</div>
+        <div><strong>Batch:</strong> {{ batch.name }}</div>
+    </div>
+    <div class="report-meta" style="margin-top: -1rem;">
+        <div><strong>Evaluation Type:</strong> {{ exam_type }}</div>
+        <div><strong>Audit Timestamp:</strong> <span id="currentDate"></span></div>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Roll Number</th>
+                <th>Student Name</th>
+                <th>Marks Obtained</th>
+                <th>Maximum Score</th>
+                <th>Percentage %</th>
+                <th>Status (Pass/Fail)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in marks_summary %}
+            <tr>
+                <td><code>{{ row.student.roll_no }}</code></td>
+                <td style="font-weight: 600;">{{ row.student.user.name }}</td>
+                {% if row.record %}
+                {% set percentage = (row.record.marks_obtained / row.record.max_marks * 100) | round(1) %}
+                <td style="font-weight: 600;">{{ row.record.marks_obtained }} Marks</td>
+                <td>{{ row.record.max_marks }} Marks</td>
+                <td style="font-weight: 700; {% if percentage < 50 %}color: #b91c1c;{% endif %}">{{ percentage }}%</td>
+                <td style="font-weight: 700; {% if percentage < 50 %}color: #b91c1c;{% else %}color: #15803d;{% endif %}">
+                    {% if percentage < 50 %}
+                    FAIL (Below 50%)
+                    {% else %}
+                    PASS
+                    {% endif %}
+                </td>
+                {% else %}
+                <td colspan="4" style="color: #64748b; font-style: italic; text-align: center;">Not Uploaded / Evaluation Pending</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        document.getElementById('currentDate').textContent = new Date().toLocaleString();
+        window.onload = function() {
+            window.print();
+        }
+    </script>
+</body>
+</html>

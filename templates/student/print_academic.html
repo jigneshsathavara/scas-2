@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Academic Scorecard - Smart College Analytics System</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 2rem;
+            color: #1e293b;
+            background: white;
+        }
+        .report-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            border-bottom: 2px solid #0f172a;
+            padding-bottom: 1.5rem;
+        }
+        .report-header h1 {
+            margin: 0;
+            font-size: 2rem;
+            color: #0f172a;
+        }
+        .report-header p {
+            margin: 6px 0 0;
+            color: #64748b;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+        .report-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            border: 1px solid #cbd5e1;
+            padding: 12px;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+        th {
+            background-color: #f1f5f9;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        @media print {
+            body { padding: 0; }
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="report-header">
+        <h1>Smart College Analytics System</h1>
+        <p>Student Cumulative Academic Performance Transcript</p>
+    </div>
+    
+    <div class="report-meta">
+        <div><strong>Student Name:</strong> {{ student.user.name }}</div>
+        <div><strong>Roll Number:</strong> {{ student.roll_no }}</div>
+    </div>
+    <div class="report-meta" style="margin-top: -1rem;">
+        <div><strong>Course Program:</strong> {{ student.course.name }} ({{ student.course.code }})</div>
+        <div><strong>Batch:</strong> {{ student.batch.name }}</div>
+    </div>
+    <div class="report-meta" style="margin-top: -1rem;">
+        <div><strong>Audit Timestamp:</strong> <span id="currentDate"></span></div>
+        <div><strong>Record Status:</strong> Unofficial Grade Transcript</div>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Subject Code</th>
+                <th>Subject Title</th>
+                <th>Attendance rate</th>
+                <th>Midterm 1 Score</th>
+                <th>Midterm 2 Score</th>
+                <th>Semester Final Score</th>
+                <th>Assignment Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in academic_summary %}
+            <tr>
+                <td><code>{{ item.subject.code }}</code></td>
+                <td style="font-weight: 600;">{{ item.subject.name }}</td>
+                <td style="font-weight: 600; {% if item.attendance_rate < 75 %}color: #b91c1c;{% endif %}">
+                    {{ item.attendance_rate }}% 
+                    <span style="font-size: 0.75rem; color: #64748b; font-weight: normal;">({{ item.present }}/{{ item.total }})</span>
+                </td>
+                
+                <!-- Midterm 1 -->
+                <td>
+                    {% set m1 = item.marks | selectattr('exam_type', 'equalto', 'Midterm 1') | first %}
+                    {{ m1.marks_obtained ~ '/' ~ m1.max_marks if m1 else 'N/A' }}
+                </td>
+                
+                <!-- Midterm 2 -->
+                <td>
+                    {% set m2 = item.marks | selectattr('exam_type', 'equalto', 'Midterm 2') | first %}
+                    {{ m2.marks_obtained ~ '/' ~ m2.max_marks if m2 else 'N/A' }}
+                </td>
+                
+                <!-- Final -->
+                <td style="font-weight: 700;">
+                    {% set f = item.marks | selectattr('exam_type', 'equalto', 'Final Exam') | first %}
+                    {{ f.marks_obtained ~ '/' ~ f.max_marks if f else 'N/A' }}
+                </td>
+                
+                <!-- Assignment -->
+                <td>
+                    {% set a = item.marks | selectattr('exam_type', 'equalto', 'Assignment') | first %}
+                    {{ a.marks_obtained ~ '/' ~ a.max_marks if a else 'N/A' }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        document.getElementById('currentDate').textContent = new Date().toLocaleString();
+        window.onload = function() {
+            window.print();
+        }
+    </script>
+</body>
+</html>

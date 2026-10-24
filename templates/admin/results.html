@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="panel-header">
+    <div>
+        <h2 class="panel-title" style="font-size: 1.5rem; font-weight: 700;">Academic Grade Controls</h2>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.25rem;">Publish, modify, and review final grade sheets and semester scorecard evaluations</p>
+    </div>
+</div>
+
+<div class="chart-grid" style="grid-template-columns: 1fr 2fr; gap: 1.5rem; display: grid;">
+    <!-- Left panel: CSV Upload -->
+    <div class="panel" style="height: fit-content;">
+        <div class="panel-header">
+            <h3 class="panel-title">Upload Results CSV</h3>
+            <i data-lucide="file-up" style="color: var(--text-secondary);"></i>
+        </div>
+        
+        <div style="margin-bottom: 1.5rem; padding: 1rem; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 12px; font-size: 0.8rem; color: var(--text-secondary);">
+            <p style="margin-bottom: 0.5rem; font-weight: 600; color: var(--accent-secondary);">Required Headers:</p>
+            <code>roll_no</code>, <code>student_name</code>, <code>semester</code>, <code>sub1_code</code>, <code>sub1_marks</code>, <code>sub1_max</code>, <code>sub1_credits</code> (and optional additional subject blocks <code>sub2_...</code>, <code>sub3_...</code>, etc.)
+        </div>
+        
+        <form action="{{ url_for('admin.upload_results_csv') }}" method="POST" enctype="multipart/form-data" style="margin-bottom: 1.5rem;">
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label for="resultsFile" class="form-label">Select Results CSV File</label>
+                <input type="file" name="file" id="resultsFile" accept=".csv" required class="form-control" style="padding: 0.5rem;">
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.8rem;">
+                <i data-lucide="upload-cloud"></i>
+                <span>Publish Results</span>
+            </button>
+        </form>
+    </div>
+    
+    <!-- Right panel: Grade Sheet Directory -->
+    <div class="panel">
+        <div class="panel-header">
+            <h3 class="panel-title">Published Grade Register</h3>
+            <span class="badge badge-info">Total Records: {{ results | length }}</span>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Semester</th>
+                        <th>Subject Grades</th>
+                        <th>Total Credits</th>
+                        <th>SGPA</th>
+                        <th>Operation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in results %}
+                    <tr>
+                        <td>
+                            <div style="font-weight: 600;">{{ r.student.user.name }}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Roll: {{ r.student.roll_no }}</div>
+                        </td>
+                        <td style="font-weight: 600; text-align: center;">{{ r.semester }}</td>
+                        <td>
+                            <div style="display: flex; flex-direction: column; gap: 4px;">
+                                {% for sub in r.subjects %}
+                                <div style="font-size: 0.85rem;">
+                                    <code>{{ sub.code }}</code>: <strong>{{ sub.marks_obtained }}</strong>/{{ sub.max_marks }} 
+                                    <span style="font-size: 0.75rem; color: var(--text-secondary);">(Cr: {{ sub.credits }}, Gr: {{ sub.grade }})</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </td>
+                        <td>{{ r.total_credits }}</td>
+                        <td>
+                            <span class="badge badge-success" style="font-weight: 700;">{{ r.sgpa }}</span>
+                        </td>
+                        <td>
+                            <form action="{{ url_for('admin.delete_result', student_id=r.student.id, semester=r.semester) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete all result records for this student in Semester {{ r.semester }}?');">
+                                <button type="submit" class="btn btn-danger" style="padding: 0.3rem 0.5rem; font-size: 0.75rem; background: var(--color-danger);">
+                                    <i data-lucide="trash" style="width: 12px; height: 12px;"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--text-secondary); padding: 3rem;">
+                            No grade sheet records found. Upload a CSV to get started.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

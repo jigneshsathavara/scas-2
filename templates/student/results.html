@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="panel-header">
+    <div>
+        <h2 class="panel-title" style="font-size: 1.5rem; font-weight: 700;">Academic Results</h2>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.25rem;">Semester Grade Point Average (SGPA) and Cumulative Grade Point Average (CGPA) records</p>
+    </div>
+    <div class="dropdown">
+        <button class="btn btn-secondary">
+            <i data-lucide="download"></i>
+            <span>Download Report</span>
+            <i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i>
+        </button>
+        <div class="dropdown-content">
+            <a href="{{ url_for('student.download_results') }}">
+                <i data-lucide="file-spreadsheet" style="width: 14px; height: 14px;"></i>
+                <span>Download CSV</span>
+            </a>
+            <a href="{{ url_for('student.print_results') }}" target="_blank">
+                <i data-lucide="file-text" style="width: 14px; height: 14px;"></i>
+                <span>Print Scorecard</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- GPA summary cards -->
+<div class="card-grid" style="margin-bottom: 2rem;">
+    <div class="metric-card">
+        <div class="metric-info">
+            <h3>Cumulative GPA (CGPA)</h3>
+            <div class="value" style="color: var(--accent-primary);">{{ cgpa }} / 10.00</div>
+        </div>
+        <div class="metric-icon indigo">
+            <i data-lucide="award"></i>
+        </div>
+    </div>
+    
+    <div class="metric-card">
+        <div class="metric-info">
+            <h3>Semesters Completed</h3>
+            <div class="value">{{ sorted_semesters | length }}</div>
+        </div>
+        <div class="metric-icon success">
+            <i data-lucide="calendar"></i>
+        </div>
+    </div>
+
+    <div class="metric-card">
+        <div class="metric-info">
+            <h3>Total Credits Earned</h3>
+            {% set total_c = namespace(val=0) %}
+            {% for sem, data in semesters_data.items() %}
+                {% set total_c.val = total_c.val + data.total_credits %}
+            {% endfor %}
+            <div class="value">{{ total_c.val }}</div>
+        </div>
+        <div class="metric-icon warning">
+            <i data-lucide="book-open"></i>
+        </div>
+    </div>
+</div>
+
+<!-- Semesters list -->
+{% for sem in sorted_semesters %}
+<div class="panel" style="margin-bottom: 2rem;">
+    <div class="panel-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem;">
+        <h3 class="panel-title" style="font-weight: 700;">Semester {{ sem }}</h3>
+        <span class="badge badge-success" style="font-size: 0.9rem; padding: 0.4rem 0.8rem;">SGPA: {{ semesters_data[sem].sgpa }}</span>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Subject Code</th>
+                    <th>Subject Title</th>
+                    <th>Credits</th>
+                    <th>Marks Obtained</th>
+                    <th>Grade</th>
+                    <th>Grade Point</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in semesters_data[sem].results %}
+                <tr>
+                    <td><code>{{ r.subject_code }}</code></td>
+                    <td style="font-weight: 600;">{{ r.subject_name }}</td>
+                    <td>{{ r.credits }}</td>
+                    <td>{{ r.marks_obtained }} <span style="font-size: 0.75rem; color: var(--text-secondary);">/{{ r.max_marks }}</span> ({{ r.percentage }}%)</td>
+                    <td>
+                        <span class="badge {% if r.grade == 'F' %}badge-danger{% elif r.grade == 'O' or r.grade == 'A+' %}badge-success{% else %}badge-info{% endif %}">
+                            {{ r.grade }}
+                        </span>
+                    </td>
+                    <td style="font-weight: 600;">{{ r.grade_point }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="panel" style="text-align: center; padding: 3rem;">
+    <i data-lucide="alert-circle" style="width: 48px; height: 48px; color: var(--text-secondary); margin-bottom: 1rem;"></i>
+    <h3>No Result Records Found</h3>
+    <p style="color: var(--text-secondary); font-size: 0.9rem;">Your semester scores have not been uploaded by the administrator yet.</p>
+</div>
+{% endfor %}
+
+{% endblock %}

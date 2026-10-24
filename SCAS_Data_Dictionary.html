@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCAS Data Dictionary - Section 4.2 Specification</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1e293b;
+            --accent: #b91c1c;
+            --border: #000000;
+            --bg-light: #f8fafc;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: #0f172a;
+            background-color: #f1f5f9;
+            padding: 24px;
+            line-height: 1.5;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+        }
+        
+        .no-print-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1e293b;
+            color: #ffffff;
+            padding: 12px 24px;
+            border-radius: 6px;
+            margin-bottom: 24px;
+        }
+        
+        .btn {
+            background: #b91c1c;
+            color: #ffffff;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn:hover {
+            background: #991b1b;
+        }
+        
+        .nav-select {
+            padding: 6px 12px;
+            border-radius: 4px;
+            border: 1px solid #cbd5e1;
+            font-size: 14px;
+            background: #ffffff;
+            color: #0f172a;
+        }
+        
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .univ-badge {
+            color: #b91c1c;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        
+        .inst-sub {
+            color: #64748b;
+            font-size: 13px;
+            margin-top: 2px;
+            font-weight: 500;
+        }
+        
+        h1 {
+            font-size: 26px;
+            font-weight: 700;
+            margin-top: 10px;
+            color: #0f172a;
+        }
+        
+        .subtitle {
+            color: #475569;
+            font-size: 15px;
+            margin-top: 4px;
+        }
+        
+        .section-badge {
+            display: inline-block;
+            background: #f1f5f9;
+            color: #0f172a;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 14px;
+            margin-top: 8px;
+            border: 1px solid #cbd5e1;
+        }
+        
+        .card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 16px 20px;
+            margin-bottom: 28px;
+            font-size: 14px;
+            color: #334155;
+        }
+        
+        .card h2 {
+            font-size: 16px;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+        
+        /* Master Index Table */
+        .index-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+            margin-top: 12px;
+        }
+        
+        .index-table th, .index-table td {
+            border: 1px solid #cbd5e1;
+            padding: 8px 12px;
+            text-align: left;
+        }
+        
+        .index-table th {
+            background: #f1f5f9;
+            font-weight: 600;
+        }
+        
+        /* --- DEMO SPECIFICATION DESIGN (Exact Match to screenshot) --- */
+        .data-dict-unit {
+            margin-bottom: 40px;
+            page-break-after: always;
+        }
+        
+        .data-dict-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .dict-container {
+            border: 1.5px solid #000000;
+            background: #ffffff;
+        }
+        
+        .dict-header-box {
+            padding: 10px 14px;
+            border-bottom: 1.5px solid #000000;
+            font-size: 13.5px;
+            line-height: 1.55;
+            background: #ffffff;
+        }
+        
+        .dict-header-box .meta-line {
+            margin-bottom: 4px;
+        }
+        
+        .dict-header-box .meta-line:last-child {
+            margin-bottom: 0;
+        }
+        
+        .dict-header-box strong {
+            font-weight: 700;
+            color: #000000;
+        }
+        
+        .dict-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        
+        .dict-table th, .dict-table td {
+            border: 1px solid #000000;
+            padding: 7px 10px;
+            vertical-align: top;
+            text-align: left;
+        }
+        
+        .dict-table th {
+            background: #ffffff;
+            font-weight: 700;
+            color: #000000;
+        }
+        
+        .dict-table th.center, .dict-table td.center {
+            text-align: center;
+        }
+        
+        .dict-table td.field-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12.5px;
+            font-weight: 500;
+        }
+        
+        .dict-table td.field-name.pk {
+            font-weight: 700;
+        }
+        
+        .dict-notes {
+            margin-top: 10px;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            padding: 10px 14px;
+            font-size: 12.5px;
+            color: #475569;
+            border-radius: 4px;
+        }
+        
+        /* Print Styles */
+        @media print {
+            body {
+                padding: 0;
+                background: #ffffff;
+            }
+            .container {
+                max-width: 100%;
+                box-shadow: none;
+                padding: 10px;
+            }
+            .no-print-bar {
+                display: none;
+            }
+            .data-dict-unit {
+                page-break-after: always;
+                margin-bottom: 0;
+                padding-top: 15px;
+            }
+            .data-dict-unit:last-child {
+                page-break-after: avoid;
+            }
+            .dict-container {
+                border: 1.5px solid #000000 !important;
+            }
+            .dict-header-box {
+                border-bottom: 1.5px solid #000000 !important;
+            }
+            .dict-table th, .dict-table td {
+                border: 1px solid #000000 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="no-print-bar">
+        <div>
+            <strong>SCAS Database Specification</strong> &bull; Section 4.2 Data Dictionary
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center;">
+            <select class="nav-select" onchange="if(this.value) location.hash = this.value;">
+                <option value="">Jump to table...</option>
+                <option value="tbl-scas_users">Table 4.2.1: scas_users</option><option value="tbl-scas_courses">Table 4.2.2: scas_courses</option><option value="tbl-scas_batches">Table 4.2.3: scas_batches</option><option value="tbl-scas_faculty_profiles">Table 4.2.4: scas_faculty_profiles</option><option value="tbl-scas_student_profiles">Table 4.2.5: scas_student_profiles</option><option value="tbl-scas_subjects">Table 4.2.6: scas_subjects</option><option value="tbl-scas_schedules">Table 4.2.7: scas_schedules</option><option value="tbl-scas_attendance">Table 4.2.8: scas_attendance</option><option value="tbl-scas_marks">Table 4.2.9: scas_marks</option><option value="tbl-scas_results">Table 4.2.10: scas_results</option><option value="tbl-scas_test_assessments">Table 4.2.11: scas_test_assessments</option><option value="tbl-scas_fee_payments">Table 4.2.12: scas_fee_payments</option><option value="tbl-scas_leave_applications">Table 4.2.13: scas_leave_applications</option>
+            </select>
+            <button class="btn" onclick="window.print()">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/><path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2H5zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1z"/></svg>
+                Print / Save as PDF
+            </button>
+        </div>
+    </div>
+
+    <div class="header">
+        <div class="univ-badge">Ganpat University</div>
+        <div class="inst-sub">Acharya Motibhai Patel Institute of Computer Studies (AMPICS)</div>
+        <h1>Student Central Administrative System (SCAS)</h1>
+        <div class="subtitle">Comprehensive Relational Database Architecture & Schema Specification</div>
+        <div class="section-badge">Section 4.2 Data Dictionary</div>
+    </div>
+
+    <div class="card">
+        <h2>1. Design Specification & Standard Demo Format</h2>
+        <p>This technical data dictionary documents all core entities comprising the SCAS relational database schema. Each entity is presented in accordance with the formal institutional data dictionary format featuring an integrated metadata box and a detailed attribute constraint grid.</p>
+        
+        <div style="margin-top: 14px;">
+            <div style="font-weight: 700; color: #047857; margin-bottom: 6px; font-size: 13px;">Demo Reference Template:</div>
+            <div class="dict-container">
+                <div class="dict-header-box">
+                    <div class="meta-line"><strong>Table Name:</strong> companies</div>
+                    <div class="meta-line"><strong>Description:</strong> Stores company information such as company identity, login details, contact information, website, location, and company logo for managing placement-related organizations.</div>
+                    <div class="meta-line"><strong>Constraints:</strong> company_id (PK), email (UNIQUE), company_name (NOT NULL), email (NOT NULL), password (NOT NULL), created_at (NOT NULL, DEFAULT CURRENT_TIMESTAMP)</div>
+                </div>
+                <table class="dict-table">
+                    <thead>
+                        <tr>
+                            <th class="center" style="width: 70px;">Field No.</th>
+                            <th style="width: 140px;">Field Name</th>
+                            <th class="center" style="width: 90px;">Type</th>
+                            <th class="center" style="width: 60px;">Size</th>
+                            <th style="width: 220px;">Constraints</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="center">1</td>
+                            <td class="field-name pk">company_id</td>
+                            <td class="center">INT</td>
+                            <td class="center">11</td>
+                            <td>PK, AUTO_INCREMENT, NOT NULL</td>
+                            <td>Unique identifier for each company</td>
+                        </tr><tr>
+                            <td class="center">2</td>
+                            <td class="field-name">company_name</td>
+                            <td class="center">VARCHAR</td>
+                            <td class="center">150</td>
+                            <td>NOT NULL</td>
+                            <td>Name of the company</td>
+                        </tr><tr>
+                            <td class="center">3</td>
+                            <td class="field-name">email</td>
+                            <td class="center">VARCHAR</td>
+                            <td class="center">100</td>
+                            <td>UNIQUE, NOT NULL</td>
+                            <td>Unique email address used for company login/contact</td>
+                        </tr><tr>
+                            <td class="center">4</td>
+                            <td class="field-name">password</td>
+                            <td class="center">VARCHAR</td>
+                            <td class="center">255</td>
+                            <td>NOT NULL</td>
+                            <td>Encrypted/hashed password for company account</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" style="page-break-after: always;">
+        <h2>2. Master Register of System Entities (13 Tables)</h2>
+        <p>Master registry of relational entities maintaining data integrity across user authentication, degree courses, academic timetables, examinations, continuous diagnostic evaluations, tuition fee accounting, and leave management:</p>
+        <table class="index-table">
+            <thead>
+                <tr>
+                    <th style="width: 80px; text-align: center;">Section</th>
+                    <th style="width: 180px;">Table Name</th>
+                    <th style="width: 90px;">Primary Key</th>
+                    <th>Subsystem Role</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="text-align: center; font-weight: 600;">4.2.1</td>
+                    <td><a href="#tbl-scas_users" style="color: #b91c1c; text-decoration: none; font-family: 'JetBrains Mono', monospace; font-weight: 600;">scas_users</a></td>
+                    <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 3px;">id</code></td>
+                    <td>Stores system authentication credentials, user identity profiles, role-based access control (RBAC), and account creation timestamps for administrative, faculty, and student users.</td>
+                </tr><tr>
+                    <td style="text-align: center; font-weight: 600;">4.2.2</td>
+                    <td><a href="#tbl-scas_courses" style="color: #b91c1c; text-decoration: none; font-family: 'JetBrains Mono', monospace; font-weight: 600;">scas_courses</a></td>
+                    <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 3px;">id</code></td>
+                    <td>Stores academic degree programs, program identification codes, and comprehensive curriculum syllabus guidelines.</td>
+                </tr><tr>
+                    <td style="text-align: center; font-weight: 600;">4.2.3</td>
+                    <td><a href="#tbl-scas_batches" style="color: #b91c1c; text-decoration: none; font-family: 'JetBrains Mono', monospace; font-weight: 600;">scas_batches</a></td>
+                    <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 3px;">id</code></td>
+                    <td>Stores academic cohort batches, section designations, graduation/completion calendar years, and degree program associations.</td>
+                </tr><tr>
+                    <td style="text-align: center; font-weight: 600;">4.2.4</td>
+                    <td><a href="#tbl-scas_faculty_profiles" style="color: #b91c1c; text-decoration: none; font-family: 'JetBrains Mono', monospace; font-weight: 600;">scas_faculty_profiles</a></td>
+                    <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 3px;">id</code></td>
+                    <td>Stores faculty academic metadata, teaching departments, and institutional designations as a 1:1 extension of the user account.</td>
+                </tr><tr>
+                    <td style="text-align: center; font-weight: 600;">4.2.5</td>
+                    <td><a href="#tbl-scas_student_profiles" style="color: #b91c1c; text-decoration: none; font-family: 'JetBrains Mono', monospace; font-weight: 600;">scas_student_profiles</a></td>
+                    <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 3px;">id</code></td>
+                    <td>Stores student enrollment profiles, university hall ticket/matriculation numbers, cohort batch links, course allocations, and contact details.</td>
+                </tr><tr>
+                    <td style="text-align: center; font-weight: 600;">4.2.6</td>
+                    <td><a href="#tbl-scas_subjects" style="color: #b91c1c; text-decoration: none; font-family: 'JetBrains Mono', monospace; font-weight: 600;">scas_subjects</a></td>
+                    <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 3px;">id</code></td>
+                    <td>Stores academic curriculum subjects, subject course codes, degree course associations, and assigned faculty educator references.</td>
+                </tr><tr>
+                    <td style="text-align: center; font-weight: 600;">4.2.7</td>
+                    <td><a href="#tbl-scas_schedules" style="color: #b91c1c; text-decoration: none; font-family: 'JetBrains Mono', monospace; font-weight: 600;">scas_schedules</a></td>
+                    <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 3px;">id</code></td>
+                    <td>Stores weekly timetable lecture schedules, room allocations, days of the week, and commencement/termination time slots.</td>
+                </tr><tr>
+                    <td style="text-align: center; font-weight: 600;">4.2.8</td>
+                    <td><a href="#tbl-scas_attendance" style="color: #b91c1c; text-decoration: none; font-family: 'JetBrains Mono', monospace; font-weight: 600;">scas_attendance</a></td>
+                    <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 3px;">id</code></td>
+                    <td>Stores daily attendance event logs recording student presence or absence status per scheduled subject lecture.</td>
+                </tr><tr>
+                    <td style="text-align: center; font-weight: 600;">4.2.9</td>
+                    <td><a href="#tbl-scas_marks" style="color: #b91c1c; text-decoration: none; font-family: 'JetBrains Mono', monospace; font-weight: 600;">scas_marks</a></td>
+                    <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 3px;">id</code></td>
+                    <td>Stores continuous internal evaluations (CIE), examination classifications, scores achieved, and maximum benchmark marks.</td>
+                </tr><tr>
+                    <td style="text-align: center; font-weight: 600;">4.2.10</td>
+                    <td><a href="#tbl-scas_results" style="color: #b91c1c; text-decoration: none; font-family: 'JetBrains Mono', monospace; font-weight: 600;">scas_results</a></td>
+                    <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 3px;">id</code></td>
+                    <td>Stores semester grade sheets, final aggregated scores, benchmark marks, and academic credits earned by students.</td>
+                </tr><tr>
+                    <td style="text-align: center; font-weight: 600;">4.2.11</td>
+                    <td><a href="#tbl-scas_test_assessments" style="color: #b91c1c; text-decoration: none; font-family: 'JetBrains Mono', monospace; font-weight: 600;">scas_test_assessments</a></td>
+                    <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 3px;">id</code></td>
+                    <td>Stores continuous unit diagnostic evaluations, pre/post MCQ test transactions, raw scores, percentage metrics, and mastery taxonomy.</td>
+                </tr><tr>
+                    <td style="text-align: center; font-weight: 600;">4.2.12</td>
+                    <td><a href="#tbl-scas_fee_payments" style="color: #b91c1c; text-decoration: none; font-family: 'JetBrains Mono', monospace; font-weight: 600;">scas_fee_payments</a></td>
+                    <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 3px;">id</code></td>
+                    <td>Stores student financial fee ledgers, transaction records, clearance status, institutional receipts, and payment gateway references.</td>
+                </tr><tr>
+                    <td style="text-align: center; font-weight: 600;">4.2.13</td>
+                    <td><a href="#tbl-scas_leave_applications" style="color: #b91c1c; text-decoration: none; font-family: 'JetBrains Mono', monospace; font-weight: 600;">scas_leave_applications</a></td>
+                    <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 3px;">id</code></td>
+                    <td>Stores institutional leave applications, leave categories, absence date spans, applicant justifications, and administrative approval workflow states.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 13 INDIVIDUAL DATA DICTIONARY TABLES -->
+    
+    <div class="data-dict-unit" id="tbl-scas_users">
+        <div class="data-dict-title">
+            <span>Table 4.2.1: scas_users</span>
+            <span style="font-size: 12px; font-weight: 500; color: #64748b;">Engine: InnoDB | Collation: utf8mb4_unicode_ci</span>
+        </div>
+        <div class="dict-container">
+            <div class="dict-header-box">
+                <div class="meta-line"><strong>Table Name:</strong> scas_users</div>
+                <div class="meta-line"><strong>Description:</strong> Stores system authentication credentials, user identity profiles, role-based access control (RBAC), and account creation timestamps for administrative, faculty, and student users.</div>
+                <div class="meta-line"><strong>Constraints:</strong> id (PK), username (UNIQUE, NOT NULL), password_hash (NOT NULL), email (UNIQUE, NOT NULL), role (NOT NULL), name (NOT NULL), created_at (NOT NULL, DEFAULT CURRENT_TIMESTAMP)</div>
+            </div>
+            <table class="dict-table">
+                <thead>
+                    <tr>
+                        <th class="center" style="width: 70px;">Field No.</th>
+                        <th style="width: 150px;">Field Name</th>
+                        <th class="center" style="width: 90px;">Type</th>
+                        <th class="center" style="width: 60px;">Size</th>
+                        <th style="width: 220px;">Constraints</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="center">1</td>
+                        <td class="field-name pk">id</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>PK, AUTO_INCREMENT, NOT NULL</td>
+                        <td>Unique internal synthetic user identifier; primary key.</td>
+                    </tr><tr>
+                        <td class="center">2</td>
+                        <td class="field-name">username</td>
+                        <td class="center">VARCHAR</td>
+                        <td class="center">80</td>
+                        <td>UNIQUE, NOT NULL</td>
+                        <td>System login identifier; globally unique across all system roles.</td>
+                    </tr><tr>
+                        <td class="center">3</td>
+                        <td class="field-name">password_hash</td>
+                        <td class="center">VARCHAR</td>
+                        <td class="center">255</td>
+                        <td>NOT NULL</td>
+                        <td>Cryptographic password hash generated via Scrypt (Werkzeug security).</td>
+                    </tr><tr>
+                        <td class="center">4</td>
+                        <td class="field-name">email</td>
+                        <td class="center">VARCHAR</td>
+                        <td class="center">120</td>
+                        <td>UNIQUE, NOT NULL</td>
+                        <td>Primary contact email address; globally unique; used for notices & resets.</td>
+                    </tr><tr>
+                        <td class="center">5</td>
+                        <td class="field-name">role</td>
+                        <td class="center">VARCHAR</td>
+                        <td class="center">20</td>
+                        <td>NOT NULL</td>
+                        <td>Role-Based Access Control enum: 'admin', 'faculty', or 'student'.</td>
+                    </tr><tr>
+                        <td class="center">6</td>
+                        <td class="field-name">name</td>
+                        <td class="center">VARCHAR</td>
+                        <td class="center">100</td>
+                        <td>NOT NULL</td>
+                        <td>Full legal name of the user for institutional records & certificates.</td>
+                    </tr><tr>
+                        <td class="center">7</td>
+                        <td class="field-name">created_at</td>
+                        <td class="center">DATETIME</td>
+                        <td class="center">-</td>
+                        <td>NOT NULL, DEFAULT CURRENT_TIMESTAMP</td>
+                        <td>UTC timestamp recording account creation time.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="dict-notes">
+            <strong>Relational Context & Integrity:</strong> Primary key <code>id</code> with auto-increment sequence. Cascading referential integrity enabled across associated child foreign relations (<code>ON DELETE CASCADE</code>).
+        </div>
+    </div>
+    
+    <div class="data-dict-unit" id="tbl-scas_courses">
+        <div class="data-dict-title">
+            <span>Table 4.2.2: scas_courses</span>
+            <span style="font-size: 12px; font-weight: 500; color: #64748b;">Engine: InnoDB | Collation: utf8mb4_unicode_ci</span>
+        </div>
+        <div class="dict-container">
+            <div class="dict-header-box">
+                <div class="meta-line"><strong>Table Name:</strong> scas_courses</div>
+                <div class="meta-line"><strong>Description:</strong> Stores academic degree programs, program identification codes, and comprehensive curriculum syllabus guidelines.</div>
+                <div class="meta-line"><strong>Constraints:</strong> id (PK), code (UNIQUE, NOT NULL), name (NOT NULL), description (NULL)</div>
+            </div>
+            <table class="dict-table">
+                <thead>
+                    <tr>
+                        <th class="center" style="width: 70px;">Field No.</th>
+                        <th style="width: 150px;">Field Name</th>
+                        <th class="center" style="width: 90px;">Type</th>
+                        <th class="center" style="width: 60px;">Size</th>
+                        <th style="width: 220px;">Constraints</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="center">1</td>
+                        <td class="field-name pk">id</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>PK, AUTO_INCREMENT, NOT NULL</td>
+                        <td>Unique identifier for the degree program / course.</td>
+                    </tr><tr>
+                        <td class="center">2</td>
+                        <td class="field-name">name</td>
+                        <td class="center">VARCHAR</td>
+                        <td class="center">100</td>
+                        <td>NOT NULL</td>
+                        <td>Full academic degree name (e.g., 'Master of Computer Applications').</td>
+                    </tr><tr>
+                        <td class="center">3</td>
+                        <td class="field-name">code</td>
+                        <td class="center">VARCHAR</td>
+                        <td class="center">20</td>
+                        <td>UNIQUE, NOT NULL</td>
+                        <td>Short unique institutional course code (e.g., 'MCA', 'BCA', 'B.Tech').</td>
+                    </tr><tr>
+                        <td class="center">4</td>
+                        <td class="field-name">description</td>
+                        <td class="center">TEXT</td>
+                        <td class="center">-</td>
+                        <td>NULL</td>
+                        <td>Detailed curriculum overview, program syllabus objectives, and guidelines.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="dict-notes">
+            <strong>Relational Context & Integrity:</strong> Primary key <code>id</code> with auto-increment sequence. Cascading referential integrity enabled across associated child foreign relations (<code>ON DELETE CASCADE</code>).
+        </div>
+    </div>
+    
+    <div class="data-dict-unit" id="tbl-scas_batches">
+        <div class="data-dict-title">
+            <span>Table 4.2.3: scas_batches</span>
+            <span style="font-size: 12px; font-weight: 500; color: #64748b;">Engine: InnoDB | Collation: utf8mb4_unicode_ci</span>
+        </div>
+        <div class="dict-container">
+            <div class="dict-header-box">
+                <div class="meta-line"><strong>Table Name:</strong> scas_batches</div>
+                <div class="meta-line"><strong>Description:</strong> Stores academic cohort batches, section designations, graduation/completion calendar years, and degree program associations.</div>
+                <div class="meta-line"><strong>Constraints:</strong> id (PK), course_id (FK, NOT NULL), name (NOT NULL), year (NOT NULL)</div>
+            </div>
+            <table class="dict-table">
+                <thead>
+                    <tr>
+                        <th class="center" style="width: 70px;">Field No.</th>
+                        <th style="width: 150px;">Field Name</th>
+                        <th class="center" style="width: 90px;">Type</th>
+                        <th class="center" style="width: 60px;">Size</th>
+                        <th style="width: 220px;">Constraints</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="center">1</td>
+                        <td class="field-name pk">id</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>PK, AUTO_INCREMENT, NOT NULL</td>
+                        <td>Unique identifier for academic cohort batch.</td>
+                    </tr><tr>
+                        <td class="center">2</td>
+                        <td class="field-name">name</td>
+                        <td class="center">VARCHAR</td>
+                        <td class="center">50</td>
+                        <td>NOT NULL</td>
+                        <td>Cohort identifier name (e.g., 'MCA 2024-2026', 'MCA Section A').</td>
+                    </tr><tr>
+                        <td class="center">3</td>
+                        <td class="field-name">course_id</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>FK, NOT NULL</td>
+                        <td>Foreign key referencing scas_courses(id) ON DELETE CASCADE.</td>
+                    </tr><tr>
+                        <td class="center">4</td>
+                        <td class="field-name">year</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>NOT NULL</td>
+                        <td>Graduation or passing calendar year (e.g., 2026).</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="dict-notes">
+            <strong>Relational Context & Integrity:</strong> Primary key <code>id</code> with auto-increment sequence. Cascading referential integrity enabled across associated child foreign relations (<code>ON DELETE CASCADE</code>).
+        </div>
+    </div>
+    
+    <div class="data-dict-unit" id="tbl-scas_faculty_profiles">
+        <div class="data-dict-title">
+            <span>Table 4.2.4: scas_faculty_profiles</span>
+            <span style="font-size: 12px; font-weight: 500; color: #64748b;">Engine: InnoDB | Collation: utf8mb4_unicode_ci</span>
+        </div>
+        <div class="dict-container">
+            <div class="dict-header-box">
+                <div class="meta-line"><strong>Table Name:</strong> scas_faculty_profiles</div>
+                <div class="meta-line"><strong>Description:</strong> Stores faculty academic metadata, teaching departments, and institutional designations as a 1:1 extension of the user account.</div>
+                <div class="meta-line"><strong>Constraints:</strong> id (PK), user_id (FK, UNIQUE, NOT NULL), department (NOT NULL), designation (NOT NULL)</div>
+            </div>
+            <table class="dict-table">
+                <thead>
+                    <tr>
+                        <th class="center" style="width: 70px;">Field No.</th>
+                        <th style="width: 150px;">Field Name</th>
+                        <th class="center" style="width: 90px;">Type</th>
+                        <th class="center" style="width: 60px;">Size</th>
+                        <th style="width: 220px;">Constraints</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="center">1</td>
+                        <td class="field-name pk">id</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>PK, AUTO_INCREMENT, NOT NULL</td>
+                        <td>Unique faculty profile record identifier.</td>
+                    </tr><tr>
+                        <td class="center">2</td>
+                        <td class="field-name">user_id</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>FK, UNIQUE, NOT NULL</td>
+                        <td>Foreign key referencing scas_users(id) ON DELETE CASCADE (1:1 extension).</td>
+                    </tr><tr>
+                        <td class="center">3</td>
+                        <td class="field-name">department</td>
+                        <td class="center">VARCHAR</td>
+                        <td class="center">100</td>
+                        <td>NOT NULL</td>
+                        <td>Academic teaching department (e.g., 'Department of Computer Science & Applications').</td>
+                    </tr><tr>
+                        <td class="center">4</td>
+                        <td class="field-name">designation</td>
+                        <td class="center">VARCHAR</td>
+                        <td class="center">100</td>
+                        <td>NOT NULL</td>
+                        <td>Academic rank/title (e.g., 'Associate Professor', 'Assistant Professor', 'HOD').</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="dict-notes">
+            <strong>Relational Context & Integrity:</strong> Primary key <code>id</code> with auto-increment sequence. Cascading referential integrity enabled across associated child foreign relations (<code>ON DELETE CASCADE</code>).
+        </div>
+    </div>
+    
+    <div class="data-dict-unit" id="tbl-scas_student_profiles">
+        <div class="data-dict-title">
+            <span>Table 4.2.5: scas_student_profiles</span>
+            <span style="font-size: 12px; font-weight: 500; color: #64748b;">Engine: InnoDB | Collation: utf8mb4_unicode_ci</span>
+        </div>
+        <div class="dict-container">
+            <div class="dict-header-box">
+                <div class="meta-line"><strong>Table Name:</strong> scas_student_profiles</div>
+                <div class="meta-line"><strong>Description:</strong> Stores student enrollment profiles, university hall ticket/matriculation numbers, cohort batch links, course allocations, and contact details.</div>
+                <div class="meta-line"><strong>Constraints:</strong> id (PK), user_id (FK, UNIQUE, NOT NULL), roll_no (UNIQUE, NOT NULL), batch_id (FK, NOT NULL), course_id (FK, NOT NULL), phone (NULL)</div>
+            </div>
+            <table class="dict-table">
+                <thead>
+                    <tr>
+                        <th class="center" style="width: 70px;">Field No.</th>
+                        <th style="width: 150px;">Field Name</th>
+                        <th class="center" style="width: 90px;">Type</th>
+                        <th class="center" style="width: 60px;">Size</th>
+                        <th style="width: 220px;">Constraints</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="center">1</td>
+                        <td class="field-name pk">id</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>PK, AUTO_INCREMENT, NOT NULL</td>
+                        <td>Unique student profile record identifier.</td>
+                    </tr><tr>
+                        <td class="center">2</td>
+                        <td class="field-name">user_id</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>FK, UNIQUE, NOT NULL</td>
+                        <td>Foreign key referencing scas_users(id) ON DELETE CASCADE (1:1 extension).</td>
+                    </tr><tr>
+                        <td class="center">3</td>
+                        <td class="field-name">roll_no</td>
+                        <td class="center">VARCHAR</td>
+                        <td class="center">30</td>
+                        <td>UNIQUE, NOT NULL</td>
+                        <td>University matriculation / hall ticket roll number (e.g., 'MCA2401', '24MCA042').</td>
+                    </tr><tr>
+                        <td class="center">4</td>
+                        <td class="field-name">batch_id</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>FK, NOT NULL</td>
+                        <td>Foreign key referencing scas_batches(id) ON DELETE CASCADE.</td>
+                    </tr><tr>
+                        <td class="center">5</td>
+                        <td class="field-name">course_id</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>FK, NOT NULL</td>
+                        <td>Foreign key referencing scas_courses(id) ON DELETE CASCADE.</td>
+                    </tr><tr>
+                        <td class="center">6</td>
+                        <td class="field-name">phone</td>
+                        <td class="center">VARCHAR</td>
+                        <td class="center">20</td>
+                        <td>NULL</td>
+                        <td>Student / emergency guardian contact phone number for SMS and notifications.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="dict-notes">
+            <strong>Relational Context & Integrity:</strong> Primary key <code>id</code> with auto-increment sequence. Cascading referential integrity enabled across associated child foreign relations (<code>ON DELETE CASCADE</code>).
+        </div>
+    </div>
+    
+    <div class="data-dict-unit" id="tbl-scas_subjects">
+        <div class="data-dict-title">
+            <span>Table 4.2.6: scas_subjects</span>
+            <span style="font-size: 12px; font-weight: 500; color: #64748b;">Engine: InnoDB | Collation: utf8mb4_unicode_ci</span>
+        </div>
+        <div class="dict-container">
+            <div class="dict-header-box">
+                <div class="meta-line"><strong>Table Name:</strong> scas_subjects</div>
+                <div class="meta-line"><strong>Description:</strong> Stores academic curriculum subjects, subject course codes, degree course associations, and assigned faculty educator references.</div>
+                <div class="meta-line"><strong>Constraints:</strong> id (PK), code (UNIQUE, NOT NULL), name (NOT NULL), course_id (FK, NOT NULL), faculty_id (FK, NOT NULL)</div>
+            </div>
+            <table class="dict-table">
+                <thead>
+                    <tr>
+                        <th class="center" style="width: 70px;">Field No.</th>
+                        <th style="width: 150px;">Field Name</th>
+                        <th class="center" style="width: 90px;">Type</th>
+                        <th class="center" style="width: 60px;">Size</th>
+                        <th style="width: 220px;">Constraints</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="center">1</td>
+                        <td class="field-name pk">id</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>PK, AUTO_INCREMENT, NOT NULL</td>
+                        <td>Unique curriculum course subject identifier.</td>
+                    </tr><tr>
+                        <td class="center">2</td>
+                        <td class="field-name">name</td>
+                        <td class="center">VARCHAR</td>
+                        <td class="center">100</td>
+                        <td>NOT NULL</td>
+                        <td>Full academic subject title (e.g., 'Advanced Database Systems', 'Cloud Computing').</td>
+                    </tr><tr>
+                        <td class="center">3</td>
+                        <td class="field-name">code</td>
+                        <td class="center">VARCHAR</td>
+                        <td class="center">20</td>
+                        <td>UNIQUE, NOT NULL</td>
+                        <td>Official academic subject course code (e.g., 'MCA201', 'CS304').</td>
+                    </tr><tr>
+                        <td class="center">4</td>
+                        <td class="field-name">course_id</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>FK, NOT NULL</td>
+                        <td>Foreign key referencing scas_courses(id) ON DELETE CASCADE.</td>
+                    </tr><tr>
+                        <td class="center">5</td>
+                        <td class="field-name">faculty_id</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>FK, NOT NULL</td>
+                        <td>Foreign key referencing scas_users(id) ON DELETE CASCADE (Assigned teacher).</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="dict-notes">
+            <strong>Relational Context & Integrity:</strong> Primary key <code>id</code> with auto-increment sequence. Cascading referential integrity enabled across associated child foreign relations (<code>ON DELETE CASCADE</code>).
+        </div>
+    </div>
+    
+    <div class="data-dict-unit" id="tbl-scas_schedules">
+        <div class="data-dict-title">
+            <span>Table 4.2.7: scas_schedules</span>
+            <span style="font-size: 12px; font-weight: 500; color: #64748b;">Engine: InnoDB | Collation: utf8mb4_unicode_ci</span>
+        </div>
+        <div class="dict-container">
+            <div class="dict-header-box">
+                <div class="meta-line"><strong>Table Name:</strong> scas_schedules</div>
+                <div class="meta-line"><strong>Description:</strong> Stores weekly timetable lecture schedules, room allocations, days of the week, and commencement/termination time slots.</div>
+                <div class="meta-line"><strong>Constraints:</strong> id (PK), subject_id (FK, NOT NULL), batch_id (FK, NOT NULL), day_of_week (NOT NULL), start_time (NOT NULL), end_time (NOT NULL), room (NOT NULL)</div>
+            </div>
+            <table class="dict-table">
+                <thead>
+                    <tr>
+                        <th class="center" style="width: 70px;">Field No.</th>
+                        <th style="width: 150px;">Field Name</th>
+                        <th class="center" style="width: 90px;">Type</th>
+                        <th class="center" style="width: 60px;">Size</th>
+                        <th style="width: 220px;">Constraints</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="center">1</td>
+                        <td class="field-name pk">id</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>PK, AUTO_INCREMENT, NOT NULL</td>
+                        <td>Unique timetable slot identifier.</td>
+                    </tr><tr>
+                        <td class="center">2</td>
+                        <td class="field-name">subject_id</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>FK, NOT NULL</td>
+                        <td>Foreign key referencing scas_subjects(id) ON DELETE CASCADE.</td>
+                    </tr><tr>
+                        <td class="center">3</td>
+                        <td class="field-name">batch_id</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>FK, NOT NULL</td>
+                        <td>Foreign key referencing scas_batches(id) ON DELETE CASCADE.</td>
+                    </tr><tr>
+                        <td class="center">4</td>
+                        <td class="field-name">day_of_week</td>
+                        <td class="center">VARCHAR</td>
+                        <td class="center">20</td>
+                        <td>NOT NULL</td>
+                        <td>Scheduled lecture day: 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'.</td>
+                    </tr><tr>
+                        <td class="center">5</td>
+                        <td class="field-name">start_time</td>
+                        <td class="center">VARCHAR</td>
+                        <td class="center">10</td>
+                        <td>NOT NULL</td>
+                        <td>Lecture commencement time string (e.g., '09:00 AM', '11:30 AM').</td>
+                    </tr><tr>
+                        <td class="center">6</td>
+                        <td class="field-name">end_time</td>
+                        <td class="center">VARCHAR</td>
+                        <td class="center">10</td>
+                        <td>NOT NULL</td>
+                        <td>Lecture termination time string (e.g., '10:00 AM', '12:30 PM').</td>
+                    </tr><tr>
+                        <td class="center">7</td>
+                        <td class="field-name">room</td>
+                        <td class="center">VARCHAR</td>
+                        <td class="center">20</td>
+                        <td>NOT NULL</td>
+                        <td>Allocated classroom / computer laboratory identifier (e.g., 'Lab 3', 'Hall 201').</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="dict-notes">
+            <strong>Relational Context & Integrity:</strong> Primary key <code>id</code> with auto-increment sequence. Cascading referential integrity enabled across associated child foreign relations (<code>ON DELETE CASCADE</code>).
+        </div>
+    </div>
+    
+    <div class="data-dict-unit" id="tbl-scas_attendance">
+        <div class="data-dict-title">
+            <span>Table 4.2.8: scas_attendance</span>
+            <span style="font-size: 12px; font-weight: 500; color: #64748b;">Engine: InnoDB | Collation: utf8mb4_unicode_ci</span>
+        </div>
+        <div class="dict-container">
+            <div class="dict-header-box">
+                <div class="meta-line"><strong>Table Name:</strong> scas_attendance</div>
+                <div class="meta-line"><strong>Description:</strong> Stores daily attendance event logs recording student presence or absence status per scheduled subject lecture.</div>
+                <div class="meta-line"><strong>Constraints:</strong> id (PK), student_id (FK, NOT NULL), subject_id (FK, NOT NULL), date (NOT NULL), status (NOT NULL)</div>
+            </div>
+            <table class="dict-table">
+                <thead>
+                    <tr>
+                        <th class="center" style="width: 70px;">Field No.</th>
+                        <th style="width: 150px;">Field Name</th>
+                        <th class="center" style="width: 90px;">Type</th>
+                        <th class="center" style="width: 60px;">Size</th>
+                        <th style="width: 220px;">Constraints</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="center">1</td>
+                        <td class="field-name pk">id</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>PK, AUTO_INCREMENT, NOT NULL</td>
+                        <td>Unique attendance log transaction identifier.</td>
+                    </tr><tr>
+                        <td class="center">2</td>
+                        <td class="field-name">student_id</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>FK, NOT NULL</td>
+                        <td>Foreign key referencing scas_student_profiles(id) ON DELETE CASCADE.</td>
+                    </tr><tr>
+                        <td class="center">3</td>
+                        <td class="field-name">subject_id</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>FK, NOT NULL</td>
+                        <td>Foreign key referencing scas_subjects(id) ON DELETE CASCADE.</td>
+                    </tr><tr>
+                        <td class="center">4</td>
+                        <td class="field-name">date</td>
+                        <td class="center">DATE</td>
+                        <td class="center">-</td>
+                        <td>NOT NULL</td>
+                        <td>Calendar date on which attendance was recorded (YYYY-MM-DD).</td>
+                    </tr><tr>
+                        <td class="center">5</td>
+                        <td class="field-name">status</td>
+                        <td class="center">VARCHAR</td>
+                        <td class="center">10</td>
+                        <td>NOT NULL</td>
+                        <td>Daily attendance status value: 'Present' or 'Absent'.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="dict-notes">
+            <strong>Relational Context & Integrity:</strong> Primary key <code>id</code> with auto-increment sequence. Cascading referential integrity enabled across associated child foreign relations (<code>ON DELETE CASCADE</code>).
+        </div>
+    </div>
+    
+    <div class="data-dict-unit" id="tbl-scas_marks">
+        <div class="data-dict-title">
+            <span>Table 4.2.9: scas_marks</span>
+            <span style="font-size: 12px; font-weight: 500; color: #64748b;">Engine: InnoDB | Collation: utf8mb4_unicode_ci</span>
+        </div>
+        <div class="dict-container">
+            <div class="dict-header-box">
+                <div class="meta-line"><strong>Table Name:</strong> scas_marks</div>
+                <div class="meta-line"><strong>Description:</strong> Stores continuous internal evaluations (CIE), examination classifications, scores achieved, and maximum benchmark marks.</div>
+                <div class="meta-line"><strong>Constraints:</strong> id (PK), student_id (FK, NOT NULL), subject_id (FK, NOT NULL), exam_type (NOT NULL), marks_obtained (NOT NULL), max_marks (NOT NULL)</div>
+            </div>
+            <table class="dict-table">
+                <thead>
+                    <tr>
+                        <th class="center" style="width: 70px;">Field No.</th>
+                        <th style="width: 150px;">Field Name</th>
+                        <th class="center" style="width: 90px;">Type</th>
+                        <th class="center" style="width: 60px;">Size</th>
+                        <th style="width: 220px;">Constraints</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="center">1</td>
+                        <td class="field-name pk">id</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>PK, AUTO_INCREMENT, NOT NULL</td>
+                        <td>Unique internal evaluation score entry identifier.</td>
+                    </tr><tr>
+                        <td class="center">2</td>
+                        <td class="field-name">student_id</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>FK, NOT NULL</td>
+                        <td>Foreign key referencing scas_student_profiles(id) ON DELETE CASCADE.</td>
+                    </tr><tr>
+                        <td class="center">3</td>
+                        <td class="field-name">subject_id</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>FK, NOT NULL</td>
+                        <td>Foreign key referencing scas_subjects(id) ON DELETE CASCADE.</td>
+                    </tr><tr>
+                        <td class="center">4</td>
+                        <td class="field-name">exam_type</td>
+                        <td class="center">VARCHAR</td>
+                        <td class="center">30</td>
+                        <td>NOT NULL</td>
+                        <td>Examination classification: 'Midterm 1', 'Midterm 2', 'Assignment', 'Final Exam'.</td>
+                    </tr><tr>
+                        <td class="center">5</td>
+                        <td class="field-name">marks_obtained</td>
+                        <td class="center">FLOAT</td>
+                        <td class="center">-</td>
+                        <td>NOT NULL</td>
+                        <td>Numeric score achieved by student in the assessment (e.g., 42.5).</td>
+                    </tr><tr>
+                        <td class="center">6</td>
+                        <td class="field-name">max_marks</td>
+                        <td class="center">FLOAT</td>
+                        <td class="center">-</td>
+                        <td>NOT NULL</td>
+                        <td>Maximum total marks possible for this examination type (e.g., 50.0 or 100.0).</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="dict-notes">
+            <strong>Relational Context & Integrity:</strong> Primary key <code>id</code> with auto-increment sequence. Cascading referential integrity enabled across associated child foreign relations (<code>ON DELETE CASCADE</code>).
+        </div>
+    </div>
+    
+    <div class="data-dict-unit" id="tbl-scas_results">
+        <div class="data-dict-title">
+            <span>Table 4.2.10: scas_results</span>
+            <span style="font-size: 12px; font-weight: 500; color: #64748b;">Engine: InnoDB | Collation: utf8mb4_unicode_ci</span>
+        </div>
+        <div class="dict-container">
+            <div class="dict-header-box">
+                <div class="meta-line"><strong>Table Name:</strong> scas_results</div>
+                <div class="meta-line"><strong>Description:</strong> Stores semester grade sheets, final aggregated scores, benchmark marks, and academic credits earned by students.</div>
+                <div class="meta-line"><strong>Constraints:</strong> id (PK), student_id (FK, NOT NULL), subject_id (FK, NOT NULL), semester (NOT NULL), marks_obtained (NOT NULL), max_marks (NOT NULL), credits (NOT NULL, DEFAULT 4)</div>
+            </div>
+            <table class="dict-table">
+                <thead>
+                    <tr>
+                        <th class="center" style="width: 70px;">Field No.</th>
+                        <th style="width: 150px;">Field Name</th>
+                        <th class="center" style="width: 90px;">Type</th>
+                        <th class="center" style="width: 60px;">Size</th>
+                        <th style="width: 220px;">Constraints</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="center">1</td>
+                        <td class="field-name pk">id</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>PK, AUTO_INCREMENT, NOT NULL</td>
+                        <td>Unique semester result sheet entry identifier.</td>
+                    </tr><tr>
+                        <td class="center">2</td>
+                        <td class="field-name">student_id</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>FK, NOT NULL</td>
+                        <td>Foreign key referencing scas_student_profiles(id) ON DELETE CASCADE.</td>
+                    </tr><tr>
+                        <td class="center">3</td>
+                        <td class="field-name">subject_id</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>FK, NOT NULL</td>
+                        <td>Foreign key referencing scas_subjects(id) ON DELETE CASCADE.</td>
+                    </tr><tr>
+                        <td class="center">4</td>
+                        <td class="field-name">semester</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>NOT NULL</td>
+                        <td>Academic semester index (e.g., 1, 2, 3, 4 for MCA program).</td>
+                    </tr><tr>
+                        <td class="center">5</td>
+                        <td class="field-name">marks_obtained</td>
+                        <td class="center">FLOAT</td>
+                        <td class="center">-</td>
+                        <td>NOT NULL</td>
+                        <td>Final aggregate score obtained out of 100 in the semester.</td>
+                    </tr><tr>
+                        <td class="center">6</td>
+                        <td class="field-name">max_marks</td>
+                        <td class="center">FLOAT</td>
+                        <td class="center">-</td>
+                        <td>NOT NULL</td>
+                        <td>Benchmark maximum aggregate marks (standard 100.0).</td>
+                    </tr><tr>
+                        <td class="center">7</td>
+                        <td class="field-name">credits</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>NOT NULL, DEFAULT 4</td>
+                        <td>Academic credits assigned to this course subject (default = 4 credits).</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="dict-notes">
+            <strong>Relational Context & Integrity:</strong> Primary key <code>id</code> with auto-increment sequence. Cascading referential integrity enabled across associated child foreign relations (<code>ON DELETE CASCADE</code>).
+        </div>
+    </div>
+    
+    <div class="data-dict-unit" id="tbl-scas_test_assessments">
+        <div class="data-dict-title">
+            <span>Table 4.2.11: scas_test_assessments</span>
+            <span style="font-size: 12px; font-weight: 500; color: #64748b;">Engine: InnoDB | Collation: utf8mb4_unicode_ci</span>
+        </div>
+        <div class="dict-container">
+            <div class="dict-header-box">
+                <div class="meta-line"><strong>Table Name:</strong> scas_test_assessments</div>
+                <div class="meta-line"><strong>Description:</strong> Stores continuous unit diagnostic evaluations, pre/post MCQ test transactions, raw scores, percentage metrics, and mastery taxonomy.</div>
+                <div class="meta-line"><strong>Constraints:</strong> id (PK), student_id (FK, NOT NULL), subject_id (FK, NOT NULL), unit_number (NOT NULL), unit_title (NOT NULL), test_type (NOT NULL), score (NOT NULL), percentage (NOT NULL), total_questions (DEFAULT 25), mastery_level (DEFAULT 'Intermediate'), submitted_at (DEFAULT CURRENT_TIMESTAMP)</div>
+            </div>
+            <table class="dict-table">
+                <thead>
+                    <tr>
+                        <th class="center" style="width: 70px;">Field No.</th>
+                        <th style="width: 150px;">Field Name</th>
+                        <th class="center" style="width: 90px;">Type</th>
+                        <th class="center" style="width: 60px;">Size</th>
+                        <th style="width: 220px;">Constraints</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="center">1</td>
+                        <td class="field-name pk">id</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>PK, AUTO_INCREMENT, NOT NULL</td>
+                        <td>Unique test assessment attempt transaction identifier.</td>
+                    </tr><tr>
+                        <td class="center">2</td>
+                        <td class="field-name">student_id</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>FK, NOT NULL</td>
+                        <td>Foreign key referencing scas_student_profiles(id) ON DELETE CASCADE.</td>
+                    </tr><tr>
+                        <td class="center">3</td>
+                        <td class="field-name">subject_id</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>FK, NOT NULL</td>
+                        <td>Foreign key referencing scas_subjects(id) ON DELETE CASCADE.</td>
+                    </tr><tr>
+                        <td class="center">4</td>
+                        <td class="field-name">unit_number</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>NOT NULL</td>
+                        <td>Curriculum unit sequence number (e.g., Unit 1 through Unit 5).</td>
+                    </tr><tr>
+                        <td class="center">5</td>
+                        <td class="field-name">unit_title</td>
+                        <td class="center">VARCHAR</td>
+                        <td class="center">200</td>
+                        <td>NOT NULL</td>
+                        <td>Descriptive topic / chapter heading covered by this assessment.</td>
+                    </tr><tr>
+                        <td class="center">6</td>
+                        <td class="field-name">test_type</td>
+                        <td class="center">VARCHAR</td>
+                        <td class="center">20</td>
+                        <td>NOT NULL</td>
+                        <td>Diagnostic evaluation classification: 'pre-test' or 'post-test'.</td>
+                    </tr><tr>
+                        <td class="center">7</td>
+                        <td class="field-name">score</td>
+                        <td class="center">FLOAT</td>
+                        <td class="center">-</td>
+                        <td>NOT NULL</td>
+                        <td>Raw marks achieved in test (typically out of 25.0 points).</td>
+                    </tr><tr>
+                        <td class="center">8</td>
+                        <td class="field-name">total_questions</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>NOT NULL, DEFAULT 25</td>
+                        <td>Total questions presented in the multiple-choice assessment.</td>
+                    </tr><tr>
+                        <td class="center">9</td>
+                        <td class="field-name">percentage</td>
+                        <td class="center">FLOAT</td>
+                        <td class="center">-</td>
+                        <td>NOT NULL</td>
+                        <td>Calculated performance percentage: (score / total_questions) * 100.</td>
+                    </tr><tr>
+                        <td class="center">10</td>
+                        <td class="field-name">mastery_level</td>
+                        <td class="center">VARCHAR</td>
+                        <td class="center">50</td>
+                        <td>DEFAULT 'Intermediate'</td>
+                        <td>Categorical taxonomy: 'Beginner', 'Intermediate', or 'Mastered'.</td>
+                    </tr><tr>
+                        <td class="center">11</td>
+                        <td class="field-name">submitted_at</td>
+                        <td class="center">DATETIME</td>
+                        <td class="center">-</td>
+                        <td>NOT NULL, DEFAULT CURRENT_TIMESTAMP</td>
+                        <td>Submission timestamp for speed, telemetry & placement leaderboard.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="dict-notes">
+            <strong>Relational Context & Integrity:</strong> Primary key <code>id</code> with auto-increment sequence. Cascading referential integrity enabled across associated child foreign relations (<code>ON DELETE CASCADE</code>).
+        </div>
+    </div>
+    
+    <div class="data-dict-unit" id="tbl-scas_fee_payments">
+        <div class="data-dict-title">
+            <span>Table 4.2.12: scas_fee_payments</span>
+            <span style="font-size: 12px; font-weight: 500; color: #64748b;">Engine: InnoDB | Collation: utf8mb4_unicode_ci</span>
+        </div>
+        <div class="dict-container">
+            <div class="dict-header-box">
+                <div class="meta-line"><strong>Table Name:</strong> scas_fee_payments</div>
+                <div class="meta-line"><strong>Description:</strong> Stores student financial fee ledgers, transaction records, clearance status, institutional receipts, and payment gateway references.</div>
+                <div class="meta-line"><strong>Constraints:</strong> id (PK), student_id (FK, NOT NULL), amount (NOT NULL), status (NOT NULL), payment_date (NOT NULL, DEFAULT CURRENT_TIMESTAMP), receipt_no (UNIQUE, NULL), transaction_id (UNIQUE, NULL)</div>
+            </div>
+            <table class="dict-table">
+                <thead>
+                    <tr>
+                        <th class="center" style="width: 70px;">Field No.</th>
+                        <th style="width: 150px;">Field Name</th>
+                        <th class="center" style="width: 90px;">Type</th>
+                        <th class="center" style="width: 60px;">Size</th>
+                        <th style="width: 220px;">Constraints</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="center">1</td>
+                        <td class="field-name pk">id</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>PK, AUTO_INCREMENT, NOT NULL</td>
+                        <td>Unique fee transaction ledger identifier.</td>
+                    </tr><tr>
+                        <td class="center">2</td>
+                        <td class="field-name">student_id</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>FK, NOT NULL</td>
+                        <td>Foreign key referencing scas_student_profiles(id) ON DELETE CASCADE.</td>
+                    </tr><tr>
+                        <td class="center">3</td>
+                        <td class="field-name">amount</td>
+                        <td class="center">FLOAT</td>
+                        <td class="center">-</td>
+                        <td>NOT NULL</td>
+                        <td>Transaction amount in institutional currency (e.g., 45000.00).</td>
+                    </tr><tr>
+                        <td class="center">4</td>
+                        <td class="field-name">payment_date</td>
+                        <td class="center">DATETIME</td>
+                        <td class="center">-</td>
+                        <td>NOT NULL, DEFAULT CURRENT_TIMESTAMP</td>
+                        <td>Timestamp when payment was confirmed or recorded in ledger.</td>
+                    </tr><tr>
+                        <td class="center">5</td>
+                        <td class="field-name">status</td>
+                        <td class="center">VARCHAR</td>
+                        <td class="center">20</td>
+                        <td>NOT NULL</td>
+                        <td>Fee clearance state: 'Paid', 'Pending', or 'Overdue'.</td>
+                    </tr><tr>
+                        <td class="center">6</td>
+                        <td class="field-name">receipt_no</td>
+                        <td class="center">VARCHAR</td>
+                        <td class="center">50</td>
+                        <td>UNIQUE, NULL</td>
+                        <td>Unique institutional receipt sequence number (e.g., 'REC-2026-0814').</td>
+                    </tr><tr>
+                        <td class="center">7</td>
+                        <td class="field-name">transaction_id</td>
+                        <td class="center">VARCHAR</td>
+                        <td class="center">50</td>
+                        <td>UNIQUE, NULL</td>
+                        <td>External banking / UPI reference transaction code (e.g., 'TXN938201948').</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="dict-notes">
+            <strong>Relational Context & Integrity:</strong> Primary key <code>id</code> with auto-increment sequence. Cascading referential integrity enabled across associated child foreign relations (<code>ON DELETE CASCADE</code>).
+        </div>
+    </div>
+    
+    <div class="data-dict-unit" id="tbl-scas_leave_applications">
+        <div class="data-dict-title">
+            <span>Table 4.2.13: scas_leave_applications</span>
+            <span style="font-size: 12px; font-weight: 500; color: #64748b;">Engine: InnoDB | Collation: utf8mb4_unicode_ci</span>
+        </div>
+        <div class="dict-container">
+            <div class="dict-header-box">
+                <div class="meta-line"><strong>Table Name:</strong> scas_leave_applications</div>
+                <div class="meta-line"><strong>Description:</strong> Stores institutional leave applications, leave categories, absence date spans, applicant justifications, and administrative approval workflow states.</div>
+                <div class="meta-line"><strong>Constraints:</strong> id (PK), user_id (FK, NOT NULL), leave_type (NOT NULL), start_date (NOT NULL), end_date (NOT NULL), reason (NOT NULL), status (NOT NULL, DEFAULT 'Pending'), applied_at (NOT NULL, DEFAULT CURRENT_TIMESTAMP)</div>
+            </div>
+            <table class="dict-table">
+                <thead>
+                    <tr>
+                        <th class="center" style="width: 70px;">Field No.</th>
+                        <th style="width: 150px;">Field Name</th>
+                        <th class="center" style="width: 90px;">Type</th>
+                        <th class="center" style="width: 60px;">Size</th>
+                        <th style="width: 220px;">Constraints</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="center">1</td>
+                        <td class="field-name pk">id</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>PK, AUTO_INCREMENT, NOT NULL</td>
+                        <td>Unique leave application identifier.</td>
+                    </tr><tr>
+                        <td class="center">2</td>
+                        <td class="field-name">user_id</td>
+                        <td class="center">INT</td>
+                        <td class="center">11</td>
+                        <td>FK, NOT NULL</td>
+                        <td>Foreign key referencing scas_users(id) ON DELETE CASCADE (Applicant).</td>
+                    </tr><tr>
+                        <td class="center">3</td>
+                        <td class="field-name">leave_type</td>
+                        <td class="center">VARCHAR</td>
+                        <td class="center">50</td>
+                        <td>NOT NULL</td>
+                        <td>Leave classification: 'Sick Leave', 'Casual Leave', 'Duty Leave', 'Maternity'.</td>
+                    </tr><tr>
+                        <td class="center">4</td>
+                        <td class="field-name">start_date</td>
+                        <td class="center">DATE</td>
+                        <td class="center">-</td>
+                        <td>NOT NULL</td>
+                        <td>Inclusive start date of proposed absence (YYYY-MM-DD).</td>
+                    </tr><tr>
+                        <td class="center">5</td>
+                        <td class="field-name">end_date</td>
+                        <td class="center">DATE</td>
+                        <td class="center">-</td>
+                        <td>NOT NULL</td>
+                        <td>Inclusive completion date of proposed absence (YYYY-MM-DD).</td>
+                    </tr><tr>
+                        <td class="center">6</td>
+                        <td class="field-name">reason</td>
+                        <td class="center">TEXT</td>
+                        <td class="center">-</td>
+                        <td>NOT NULL</td>
+                        <td>Applicant's textual justification, medical note details, or on-duty event brief.</td>
+                    </tr><tr>
+                        <td class="center">7</td>
+                        <td class="field-name">status</td>
+                        <td class="center">VARCHAR</td>
+                        <td class="center">20</td>
+                        <td>NOT NULL, DEFAULT 'Pending'</td>
+                        <td>Workflow lifecycle approval status: 'Pending', 'Approved', 'Rejected'.</td>
+                    </tr><tr>
+                        <td class="center">8</td>
+                        <td class="field-name">applied_at</td>
+                        <td class="center">DATETIME</td>
+                        <td class="center">-</td>
+                        <td>NOT NULL, DEFAULT CURRENT_TIMESTAMP</td>
+                        <td>Submission timestamp for review SLA tracking.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="dict-notes">
+            <strong>Relational Context & Integrity:</strong> Primary key <code>id</code> with auto-increment sequence. Cascading referential integrity enabled across associated child foreign relations (<code>ON DELETE CASCADE</code>).
+        </div>
+    </div>
+    
+
+</div>
+
+</body>
+</html>

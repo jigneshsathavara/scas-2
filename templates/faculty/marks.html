@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="panel-header">
+    <div>
+        <h2 class="panel-title" style="font-size: 1.5rem; font-weight: 700;">Academic Grading</h2>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.25rem;">Upload student exam scores, internal evaluations, and export class statistics</p>
+    </div>
+    {% if selected_subject_id and selected_batch_id %}
+    <div class="dropdown">
+        <button class="btn btn-secondary">
+            <i data-lucide="download"></i>
+            <span>Download Report</span>
+            <i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i>
+        </button>
+        <div class="dropdown-content">
+            <a href="{{ url_for('faculty.download_marks_report', subject_id=selected_subject_id, batch_id=selected_batch_id, exam_type=selected_exam) }}">
+                <i data-lucide="file-spreadsheet" style="width: 14px; height: 14px;"></i>
+                <span>Download CSV</span>
+            </a>
+            <a href="{{ url_for('faculty.print_marks_report', subject_id=selected_subject_id, batch_id=selected_batch_id, exam_type=selected_exam) }}" target="_blank">
+                <i data-lucide="file-text" style="width: 14px; height: 14px;"></i>
+                <span>Download PDF</span>
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<div class="panel" style="margin-bottom: 1.5rem;">
+    <!-- Filter Form -->
+    <form method="GET" action="{{ url_for('faculty.marks') }}" id="filterForm" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; align-items: flex-end;">
+        <div class="form-group" style="margin-bottom: 0;">
+            <label for="filterSubject" class="form-label">Subject</label>
+            <select name="subject_id" id="filterSubject" class="form-control" onchange="this.form.submit()">
+                <option value="">Select Subject</option>
+                {% for s in subjects %}
+                <option value="{{ s.id }}" {% if selected_subject_id == s.id %}selected{% endif %}>{{ s.name }} ({{ s.code }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group" style="margin-bottom: 0;">
+            <label for="filterBatch" class="form-label">Batch Group</label>
+            <select name="batch_id" id="filterBatch" class="form-control" onchange="this.form.submit()" {% if not selected_subject_id %}disabled{% endif %}>
+                <option value="">Select Batch</option>
+                {% for b in batches %}
+                <option value="{{ b.id }}" {% if selected_batch_id == b.id %}selected{% endif %}>{{ b.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group" style="margin-bottom: 0;">
+            <label for="filterExam" class="form-label">Evaluation Type</label>
+            <select name="exam_type" id="filterExam" class="form-control" onchange="this.form.submit()">
+                <option value="Midterm 1" {% if selected_exam == 'Midterm 1' %}selected{% endif %}>Midterm Exam 1</option>
+                <option value="Midterm 2" {% if selected_exam == 'Midterm 2' %}selected{% endif %}>Midterm Exam 2</option>
+                <option value="Final Exam" {% if selected_exam == 'Final Exam' %}selected{% endif %}>Final Semester Exam</option>
+                <option value="Assignment" {% if selected_exam == 'Assignment' %}selected{% endif %}>Internal Assignment</option>
+            </select>
+        </div>
+        
+        <div>
+            <a href="{{ url_for('faculty.marks') }}" class="btn btn-secondary" style="width: 100%; justify-content: center; height: 42px;">Reset Filters</a>
+        </div>
+    </form>
+</div>
+
+{% if selected_subject_id and selected_batch_id %}
+<div class="panel">
+    <form action="{{ url_for('faculty.marks') }}" method="POST">
+        <input type="hidden" name="subject_id" value="{{ selected_subject_id }}">
+        <input type="hidden" name="batch_id" value="{{ selected_batch_id }}">
+        <input type="hidden" name="exam_type" value="{{ selected_exam }}">
+        
+        <div class="panel-header" style="flex-wrap: wrap; gap: 1rem;">
+            <h3 class="panel-title">Enter Score sheets</h3>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <label for="maxMarks" class="form-label" style="margin-bottom: 0;">Maximum Marks:</label>
+                <input type="number" name="max_marks" id="maxMarks" class="form-control" style="width: 80px; padding: 0.4rem;" value="{% if selected_exam == 'Final Exam' %}100{% else %}30{% endif %}" required min="1">
+            </div>
+        </div>
+        
+        <div class="table-responsive" style="margin-bottom: 1.5rem;">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th style="width: 150px;">Roll No</th>
+                        <th>Student Name</th>
+                        <th style="width: 250px;">Marks Obtained</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in students %}
+                    <tr>
+                        <td><code>{{ s.roll_no }}</code></td>
+                        <td style="font-weight: 600;">{{ s.user.name }}</td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="number" step="0.1" name="marks_{{ s.id }}" class="form-control" style="width: 120px;" placeholder="Not Uploaded" value="{{ marks_records.get(s.id, '') }}" min="0">
+                                <span style="color: var(--text-secondary); font-size: 0.85rem;">/ Max</span>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3" style="text-align: center; color: var(--text-secondary);">No students enrolled in this batch.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% if students %}
+        <div style="display: flex; justify-content: flex-end;">
+            <button type="submit" class="btn btn-primary" style="padding: 0.8rem 2rem;">
+                <i data-lucide="upload-cloud"></i>
+                <span>Publish Test Scores</span>
+            </button>
+        </div>
+        {% endif %}
+    </form>
+</div>
+{% else %}
+<div class="panel" style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+    <i data-lucide="filter" style="width: 48px; height: 48px; margin: 0 auto 1rem; color: var(--accent-primary); opacity: 0.7;"></i>
+    <h4>Select Subject, Batch and Examination above to input grades.</h4>
+</div>
+{% endif %}
+{% endblock %}

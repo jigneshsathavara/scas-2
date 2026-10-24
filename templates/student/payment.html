@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="panel-header">
+    <div>
+        <h2 class="panel-title" style="font-size: 1.5rem; font-weight: 700;">Tuition Fees & Billing</h2>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.25rem;">Process course fee payments, check dues, and download transactional receipts</p>
+    </div>
+</div>
+
+<div class="chart-grid" style="grid-template-columns: 1fr 2fr;">
+    <!-- Dues & Billing Panel -->
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <div class="panel">
+            <div class="panel-header">
+                <h3 class="panel-title">Pending Tuition Invoices</h3>
+                <i data-lucide="bell" style="color: var(--color-warning);"></i>
+            </div>
+            
+            {% set pending_bills = bills | selectattr('status', 'equalto', 'Pending') | list %}
+            {% for b in pending_bills %}
+            <div style="border: 1px solid var(--glass-border); background: rgba(245,158,11,0.03); border-radius: 16px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; box-shadow: var(--card-shadow);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <h4 style="font-weight: 700; font-size: 1.1rem;">Tuition Fees</h4>
+                        <span style="font-size: 0.75rem; color: var(--text-secondary);">Invoice: {{ b.receipt_no }}</span>
+                    </div>
+                    <span class="badge badge-warning">Pending</span>
+                </div>
+                
+                <div style="font-size: 2rem; font-weight: 800; color: var(--text-primary);">
+                    ₹{{ "{:,.2f}".format(b.amount) }}
+                </div>
+                
+                <button onclick="openPaymentCheckout('{{ b.id }}', '{{ b.amount }}')" class="btn btn-primary" style="justify-content: center; width: 100%; padding: 0.8rem;">
+                    <i data-lucide="credit-card"></i>
+                    <span>Proceed to Payment</span>
+                </button>
+            </div>
+            {% else %}
+            <div style="text-align: center; color: var(--text-secondary); padding: 2rem 0;">
+                <i data-lucide="check-circle" style="width: 40px; height: 40px; color: var(--color-success); margin-bottom: 0.5rem; opacity: 0.8;"></i>
+                <p style="font-size: 0.85rem;">All tuition invoices are cleared. No outstanding dues!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Billing History Panel -->
+    <div class="panel">
+        <div class="panel-header">
+            <h3 class="panel-title">Transaction Ledger</h3>
+            <span class="badge badge-info">All Billings</span>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Receipt No</th>
+                        <th>Transaction Code</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Billing Date</th>
+                        <th>Receipt</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in bills %}
+                    <tr>
+                        <td><code>{{ b.receipt_no }}</code></td>
+                        <td>
+                            {% if b.transaction_id %}
+                            <code>{{ b.transaction_id }}</code>
+                            {% else %}
+                            <span style="color: var(--text-secondary);">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td style="font-weight: 700;">₹{{ "{:,.2f}".format(b.amount) }}</td>
+                        <td>
+                            {% if b.status == 'Paid' %}
+                            <span class="badge badge-success">Success / Paid</span>
+                            {% else %}
+                            <span class="badge badge-warning">Outstanding</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if b.payment_date %}
+                            {{ b.payment_date | dateformat }}
+                            {% else %}
+                            <span style="color: var(--text-secondary);">Pending Settlement</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if b.status == 'Paid' %}
+                            <a href="{{ url_for('student.receipt', payment_id=b.id) }}" class="btn btn-secondary" style="padding: 0.35rem 0.5rem; font-size: 0.75rem;">
+                                <i data-lucide="file-text" style="width: 12px; height: 12px;"></i>
+                                <span>Receipt</span>
+                            </a>
+                            {% else %}
+                            <button class="btn btn-secondary" style="padding: 0.35rem 0.5rem; font-size: 0.75rem; opacity: 0.5;" disabled>
+                                <i data-lucide="lock" style="width: 12px; height: 12px;"></i>
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--text-secondary);">No transactions recorded.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ================= MOCK CHECKOUT OVERLAY ================= -->
+<div id="checkoutModal" class="modal-backdrop" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+    <div class="panel" style="width: 100%; max-width: 420px; background: var(--bg-secondary); border-radius: 24px; padding: 2rem; box-shadow: var(--card-shadow);">
+        <div class="panel-header" style="border-bottom: none; margin-bottom: 1rem; padding-bottom: 0;">
+            <h3 class="panel-title" style="font-weight: 700; font-size: 1.25rem;">Secure Mock Checkout</h3>
+            <button onclick="closeCheckoutModal()" style="background: none; border: none; color: var(--text-secondary); cursor: pointer;">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        
+        <!-- Mock Credit Card graphic element -->
+        <div style="background: linear-gradient(135deg, #4f46e5, #06b6d4); color: white; border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25); display: flex; flex-direction: column; justify-content: space-between; height: 160px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <i data-lucide="graduation-cap" style="width: 32px; height: 32px; opacity: 0.8;"></i>
+                <span style="font-size: 0.75rem; letter-spacing: 1px; font-weight: 600;">MOCK PAYMENT CHANNEL</span>
+            </div>
+            
+            <div style="font-size: 1.15rem; font-weight: 500; letter-spacing: 2px;" id="cardGraphicNo">•••• •••• •••• ••••</div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                <div>
+                    <div style="font-size: 0.6rem; opacity: 0.6; text-transform: uppercase;">Card Holder</div>
+                    <div style="font-size: 0.85rem; font-weight: 600;" id="cardGraphicName">STUDENT NAME</div>
+                </div>
+                <div>
+                    <div style="font-size: 0.6rem; opacity: 0.6; text-transform: uppercase;">Expiry</div>
+                    <div style="font-size: 0.85rem; font-weight: 600;" id="cardGraphicExpiry">MM/YY</div>
+                </div>
+            </div>
+        </div>
+        
+        <form action="{{ url_for('student.payment') }}" method="POST">
+            <input type="hidden" name="payment_id" id="checkoutBillId">
+            
+            <div class="form-group">
+                <label for="cardHolder" class="form-label">Cardholder Name</label>
+                <input type="text" id="cardHolder" class="form-control" required placeholder="Alice Cooper" oninput="document.getElementById('cardGraphicName').textContent = this.value.toUpperCase() || 'STUDENT NAME'">
+            </div>
+            
+            <div class="form-group">
+                <label for="cardNo" class="form-label">Card Number</label>
+                <input type="text" id="cardNo" name="card_number" class="form-control" required placeholder="4000 1234 5678 9010" maxlength="19" oninput="formatCardNumber(this)">
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                <div class="form-group">
+                    <label for="cardExpiry" class="form-label">Expiration Date</label>
+                    <input type="text" id="cardExpiry" class="form-control" required placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)">
+                </div>
+                <div class="form-group">
+                    <label for="cardCvv" class="form-label">CVV Code</label>
+                    <input type="password" id="cardCvv" class="form-control" required placeholder="•••" maxlength="3">
+                </div>
+            </div>
+            
+            <div style="font-size: 0.85rem; color: var(--text-secondary); text-align: center; margin-bottom: 1.5rem;">
+                <i data-lucide="shield-check" style="width: 14px; height: 14px; display: inline; vertical-align: middle; color: var(--color-success);"></i>
+                <span>SSL Encryption active. No real funds are moved.</span>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem;">
+                <span>Pay Dues - ₹</span><span id="checkoutAmountText">0.00</span>
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function openPaymentCheckout(billId, amount) {
+        document.getElementById('checkoutBillId').value = billId;
+        document.getElementById('checkoutAmountText').textContent = parseFloat(amount).toLocaleString('en-IN', {minimumFractionDigits: 2});
+        document.getElementById('checkoutModal').style.display = 'flex';
+    }
+
+    function closeCheckoutModal() {
+        document.getElementById('checkoutModal').style.display = 'none';
+    }
+    
+    function formatCardNumber(input) {
+        // Strip non-digits and add spaces every 4 characters
+        let v = input.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+        let matches = v.match(/\d{4,16}/g);
+        let match = matches && matches[0] || '';
+        let parts = [];
+        
+        for (let i=0, len=match.length; i<len; i+=4) {
+            parts.push(match.substring(i, i+4));
+        }
+        
+        if (parts.length > 0) {
+            input.value = parts.join(' ');
+        } else {
+            input.value = v;
+        }
+        
+        document.getElementById('cardGraphicNo').textContent = input.value || '•••• •••• •••• ••••';
+    }
+    
+    function formatExpiry(input) {
+        let v = input.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+        if (v.length >= 2) {
+            input.value = v.substring(0,2) + '/' + v.substring(2,4);
+        } else {
+            input.value = v;
+        }
+        
+        document.getElementById('cardGraphicExpiry').textContent = input.value || 'MM/YY';
+    }
+</script>
+{% endblock %}

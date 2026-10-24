@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="panel-header">
+    <div>
+        <h2 class="panel-title" style="font-size: 1.5rem; font-weight: 700;">Student Attendance Registry (Admin)</h2>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.25rem;">Monitor lectures, mark student presence, and download records across all courses</p>
+    </div>
+    {% if selected_subject_id and selected_batch_id %}
+    <div class="dropdown">
+        <button class="btn btn-secondary">
+            <i data-lucide="download"></i>
+            <span>Download Report</span>
+            <i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i>
+        </button>
+        <div class="dropdown-content">
+            <a href="{{ url_for('admin.download_attendance_report', subject_id=selected_subject_id, batch_id=selected_batch_id) }}">
+                <i data-lucide="file-spreadsheet" style="width: 14px; height: 14px;"></i>
+                <span>Download CSV</span>
+            </a>
+            <a href="{{ url_for('admin.print_attendance_report', subject_id=selected_subject_id, batch_id=selected_batch_id) }}" target="_blank">
+                <i data-lucide="file-text" style="width: 14px; height: 14px;"></i>
+                <span>Download PDF</span>
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<div class="panel" style="margin-bottom: 1.5rem;">
+    <!-- Filter Form -->
+    <form method="GET" action="{{ url_for('admin.attendance') }}" id="filterForm" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; align-items: flex-end;">
+        <div class="form-group" style="margin-bottom: 0;">
+            <label for="filterSubject" class="form-label">Subject</label>
+            <select name="subject_id" id="filterSubject" class="form-control" onchange="this.form.submit()">
+                <option value="">Select Subject</option>
+                {% for s in subjects %}
+                <option value="{{ s.id }}" {% if selected_subject_id == s.id %}selected{% endif %}>{{ s.name }} ({{ s.code }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group" style="margin-bottom: 0;">
+            <label for="filterBatch" class="form-label">Batch Group</label>
+            <select name="batch_id" id="filterBatch" class="form-control" onchange="this.form.submit()" {% if not selected_subject_id %}disabled{% endif %}>
+                <option value="">Select Batch</option>
+                {% for b in batches %}
+                <option value="{{ b.id }}" {% if selected_batch_id == b.id %}selected{% endif %}>{{ b.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group" style="margin-bottom: 0;">
+            <label for="filterDate" class="form-label">Lecture Date</label>
+            <input type="date" name="date" id="filterDate" class="form-control" value="{{ selected_date }}" onchange="this.form.submit()">
+        </div>
+        
+        <div>
+            <a href="{{ url_for('admin.attendance') }}" class="btn btn-secondary" style="width: 100%; justify-content: center; height: 42px;">Reset Filters</a>
+        </div>
+    </form>
+</div>
+
+{% if selected_subject_id and selected_batch_id %}
+<div class="panel">
+    <div class="panel-header">
+        <h3 class="panel-title">Student Roll Checklist</h3>
+        <span class="badge badge-info">Total: {{ students | length }} Students</span>
+    </div>
+    
+    <form action="{{ url_for('admin.attendance') }}" method="POST">
+        <input type="hidden" name="subject_id" value="{{ selected_subject_id }}">
+        <input type="hidden" name="batch_id" value="{{ selected_batch_id }}">
+        <input type="hidden" name="date" value="{{ selected_date }}">
+        
+        <div class="table-responsive" style="margin-bottom: 1.5rem;">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">Roll No</th>
+                        <th>Student Name</th>
+                        <th style="text-align: center;">Attendance Status (Present / Absent)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in students %}
+                    <tr>
+                        <td><code>{{ s.roll_no }}</code></td>
+                        <td style="font-weight: 600;">{{ s.user.name }}</td>
+                        <td style="text-align: center;">
+                            <label class="switch-container" style="display: inline-flex; align-items: center; gap: 0.75rem; cursor: pointer;">
+                                <input type="checkbox" name="status_{{ s.id }}" {% if attendance_records.get(s.id, 'Present') == 'Present' %}checked{% endif %} style="width: 18px; height: 18px; accent-color: var(--accent-primary);">
+                                <span style="font-size: 0.9rem;">Present</span>
+                            </label>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3" style="text-align: center; color: var(--text-secondary);">No students enrolled in this batch.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div style="display: flex; justify-content: flex-end;">
+            <button type="submit" class="btn btn-primary" style="padding: 0.7rem 2rem;">
+                <i data-lucide="check-circle"></i>
+                <span>Save Attendance Log</span>
+            </button>
+        </div>
+    </form>
+</div>
+{% else %}
+<div class="panel" style="text-align: center; padding: 4rem;">
+    <i data-lucide="calendar" style="width: 48px; height: 48px; color: var(--text-secondary); margin-bottom: 1rem;"></i>
+    <h3>Attendance Configuration Panel</h3>
+    <p style="color: var(--text-secondary); font-size: 0.9rem; max-width: 400px; margin: 0.5rem auto 0;">Select a subject, batch, and date from the filter controls above to manage or review the students' attendance registry.</p>
+</div>
+{% endif %}
+
+{% endblock %}

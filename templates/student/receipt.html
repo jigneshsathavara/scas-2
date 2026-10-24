@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt #{{ payment.receipt_no }} - Smart College Analytics System</title>
+    <!-- Lucide CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .receipt-card {
+            width: 100%;
+            max-width: 600px;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .receipt-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px dashed var(--border-color);
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .receipt-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--text-primary);
+        }
+        
+        .receipt-logo i {
+            color: var(--accent-primary);
+        }
+        
+        .receipt-status-badge {
+            padding: 0.4rem 1rem;
+            background-color: rgba(16, 185, 129, 0.15);
+            color: var(--color-success);
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(16, 185, 129, 0.25);
+        }
+        
+        .receipt-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .grid-item h5 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .grid-item p {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+        
+        .receipt-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2.5rem;
+        }
+        
+        .receipt-table th {
+            text-align: left;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+        
+        .receipt-table td {
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+                padding: 0;
+            }
+            .receipt-card {
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                background: white !important;
+                color: black !important;
+            }
+            .action-buttons {
+                display: none !important;
+            }
+            * {
+                color: black !important;
+                border-color: #ddd !important;
+            }
+            .receipt-status-badge {
+                border: 1px solid #000 !important;
+                background: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt-card">
+        <div class="receipt-header">
+            <div class="receipt-logo">
+                <i data-lucide="graduation-cap"></i>
+                <span>Smart College Portal</span>
+            </div>
+            <div class="receipt-status-badge">Payment Success</div>
+        </div>
+        
+        <div class="receipt-grid">
+            <div class="grid-item">
+                <h5>Receipt Number</h5>
+                <p>{{ payment.receipt_no }}</p>
+            </div>
+            <div class="grid-item">
+                <h5>Transaction ID</h5>
+                <p>{{ payment.transaction_id }}</p>
+            </div>
+            <div class="grid-item">
+                <h5>Student Name</h5>
+                <p>{{ student.user.name }}</p>
+            </div>
+            <div class="grid-item">
+                <h5>Roll Number</h5>
+                <p>{{ student.roll_no }}</p>
+            </div>
+            <div class="grid-item">
+                <h5>Academic Batch</h5>
+                <p>{{ student.batch.name }}</p>
+            </div>
+            <div class="grid-item">
+                <h5>Payment Timestamp</h5>
+                <p>{{ payment.payment_date | datetimeformat }}</p>
+            </div>
+        </div>
+        
+        <table class="receipt-table">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th style="text-align: right;">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Tuition Fee (Semester Evaluation charge)</td>
+                    <td style="text-align: right; font-weight: 700;">₹{{ "{:,.2f}".format(payment.amount) }}</td>
+                </tr>
+                <tr style="border-top: 2px solid var(--border-color);">
+                    <td style="color: var(--text-secondary); text-transform: uppercase; font-size: 0.8rem; padding-top: 1.5rem;">Grand Total Paid</td>
+                    <td style="text-align: right; font-size: 1.3rem; font-weight: 800; color: var(--accent-primary); padding-top: 1.5rem;">
+                        ₹{{ "{:,.2f}".format(payment.amount) }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="action-buttons" style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+            <a href="{{ url_for('student.payment') }}" class="btn btn-secondary">
+                <i data-lucide="arrow-left"></i>
+                <span>Back to Portal</span>
+            </a>
+            <button onclick="window.print()" class="btn btn-primary">
+                <i data-lucide="printer"></i>
+                <span>Print Invoice</span>
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
