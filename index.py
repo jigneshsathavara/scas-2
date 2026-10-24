@@ -18,3 +18,4 @@ except Exception as e:
 handler = app
 
 __all__ = ['app', 'handler']
+
