@@ -68,6 +68,29 @@ def init_db(target_app=None):
         finally:
             db.session.remove()
 
+class VercelPathMiddleware:
+    """WSGI middleware ensuring clean PATH_INFO under Vercel serverless rewrites."""
+    def __init__(self, wsgi_app):
+        self.wsgi_app = wsgi_app
+
+    def __call__(self, environ, start_response):
+        # Prefer original client path from Vercel edge proxy headers
+        forwarded_uri = (
+            environ.get('HTTP_X_FORWARDED_URI') or 
+            environ.get('HTTP_X_MATCHED_PATH') or
+            environ.get('HTTP_X_NOW_ROUTE_MATCHES')
+        )
+        if forwarded_uri:
+            environ['PATH_INFO'] = forwarded_uri.split('?')[0]
+        else:
+            path = environ.get('PATH_INFO', '')
+            for prefix in ['/api/index.py', '/api/index', '/index.py']:
+                if path.startswith(prefix):
+                    clean = path[len(prefix):]
+                    environ['PATH_INFO'] = clean if clean else '/'
+                    break
+        return self.wsgi_app(environ, start_response)
+
 def create_app(test_config=None):
     app = Flask(
         __name__,
@@ -78,6 +101,9 @@ def create_app(test_config=None):
     app.config.from_object(Config)
     if test_config:
         app.config.update(test_config)
+    
+    # Wrap WSGI app with Vercel path normalizer
+    app.wsgi_app = VercelPathMiddleware(app.wsgi_app)
     
     db.init_app(app)
     
@@ -97,13 +123,6 @@ def create_app(test_config=None):
         global _db_initialized
         if not _db_initialized:
             init_db(app)
-
-    @app.route('/api')
-    @app.route('/api/')
-    @app.route('/api/index')
-    @app.route('/api/index.py')
-    def api_entry_redirect():
-        return redirect(url_for('index'))
 
     @app.route('/')
     def index():
@@ -162,4 +181,3 @@ if __name__ == '__main__':
         print(f"Server Database URI: {app.config.get('SQLALCHEMY_DATABASE_URI')}")
 
     app.run(debug=True, host='127.0.0.1', port=5000)
-
