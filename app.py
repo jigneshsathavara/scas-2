@@ -1,5 +1,7 @@
 import os
+import urllib.parse
 from flask import Flask, redirect, url_for, session, render_template
+from werkzeug.middleware.proxy_fix import ProxyFix
 from config import Config
 from models.models import db, User
 
@@ -12,7 +14,7 @@ is_serverless = bool(
     not os.access(os.path.dirname(os.path.abspath(__file__)), os.W_OK)
 )
 
-# Manual  .env loading on startup (in local development only)
+# Manual .env loading on startup (in local development only)
 if not is_serverless and os.path.exists('.env'):
     with open('.env', 'r', encoding='utf-8') as f: 
         for line in f:
@@ -74,17 +76,30 @@ class VercelPathMiddleware:
         self.wsgi_app = wsgi_app
 
     def __call__(self, environ, start_response):
-        # Prefer original client path from Vercel edge proxy headers
-        raw_uri = environ.get('HTTP_X_FORWARDED_URI') or environ.get('HTTP_X_MATCHED_PATH')
-        if raw_uri and raw_uri.startswith('/'):
-            environ['PATH_INFO'] = raw_uri.split('?')[0]
-        else:
-            path = environ.get('PATH_INFO', '')
+        # 1. Prefer client path captured via rewrite query parameter (__path=$1)
+        query_string = environ.get('QUERY_STRING', '')
+        params = urllib.parse.parse_qs(query_string, keep_blank_values=True)
+        if '__path' in params:
+            raw_path = params.pop('__path')[0]
+            clean = '/' + raw_path.split('?')[0].lstrip('/')
             for prefix in ['/api/index.py', '/api/index', '/index.py']:
-                if path.startswith(prefix):
-                    clean = path[len(prefix):]
-                    environ['PATH_INFO'] = clean if clean else '/'
+                if clean.startswith(prefix):
+                    clean = clean[len(prefix):] or '/'
                     break
+            environ['PATH_INFO'] = clean
+            environ['QUERY_STRING'] = urllib.parse.urlencode([(k, v) for k, vs in params.items() for v in vs])
+        else:
+            # 2. Prefer original client path from Vercel edge proxy headers
+            raw_uri = environ.get('HTTP_X_FORWARDED_URI') or environ.get('HTTP_X_MATCHED_PATH')
+            if raw_uri and raw_uri.startswith('/'):
+                environ['PATH_INFO'] = raw_uri.split('?')[0]
+            else:
+                path = environ.get('PATH_INFO', '')
+                for prefix in ['/api/index.py', '/api/index', '/index.py']:
+                    if path.startswith(prefix):
+                        clean = path[len(prefix):]
+                        environ['PATH_INFO'] = clean if clean else '/'
+                        break
         return self.wsgi_app(environ, start_response)
 
 def create_app(test_config=None):
@@ -98,7 +113,10 @@ def create_app(test_config=None):
     if test_config:
         app.config.update(test_config)
     
-    # Wrap WSGI app with Vercel path normalizer
+    app.url_map.strict_slashes = False
+    
+    # Wrap WSGI app with ProxyFix (for HTTPS scheme & proxy headers) and Vercel path normalizer
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
     app.wsgi_app = VercelPathMiddleware(app.wsgi_app)
     
     db.init_app(app)
