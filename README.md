@@ -1,17 +1,52 @@
 # Smart College Analytics System (SCAS)
 
-An enterprise-grade, role-based academic management and student performance analytics portal built with **Flask**, **SQLAlchemy**, and **MySQL / MariaDB**, featuring machine learning risk prediction models and automated email communications.
+An enterprise-grade, role-based academic management and student performance analytics portal built with **Flask**, **SQLAlchemy**, and **MySQL / MariaDB / PostgreSQL / SQLite**, featuring machine learning risk prediction models and automated email communications.
 
 ---
 
 ## 📌 Project Architecture & Highlights
 
 - **Backend Framework**: Python 3.12+ / Flask 3.0.3 with Modular Blueprints
-- **Database Engine**: **MySQL / MariaDB** (Default: `localhost:3306/scas_db`) via `PyMySQL` and `Flask-SQLAlchemy`
-- **Analytics & AI Engine**: `scikit-learn`, `pandas`, `numpy` for predictive dropout & academic risk evaluation
+- **Database Engine**: Multi-dialect SQL via `Flask-SQLAlchemy` (MySQL/MariaDB via `PyMySQL`, PostgreSQL via `psycopg2-binary`, and SQLite fallback for serverless)
+- **Deployment**: Zero-config Vercel Serverless Function architecture (`/api/index.py`)
+- **Analytics & AI Engine**: Predictive dropout & academic risk evaluation algorithms
 - **Security & Auth**: Role-Based Access Control (RBAC), password hashing via `werkzeug.security`, timed token password resets via `itsdangerous`
 - **Communication Engine**: SMTP Email delivery with fallback to transactional mock logging (`sent_emails.log`)
-- **Frontend**: Full-Stack Jinja2 Templates styled with responsive CSS and Lucide icons; optional standalone React 19 + TypeScript SPA in `src/`
+- **Frontend**: Full-Stack Jinja2 Templates styled with responsive modern dark UI, Chart.js, and Lucide icons
+
+---
+
+## ☁️ Deploying to Vercel
+
+The project is fully configured for Vercel deployment:
+
+### 1. Repository Structure for Vercel
+```text
+scas-final/
+├── api/
+│   └── index.py        # Vercel serverless WSGI entrypoint
+├── templates/          # Jinja2 HTML templates
+├── static/             # CSS & JavaScript assets
+├── models/             # SQLAlchemy database models
+├── routes/             # Blueprints (admin, auth, faculty, student)
+├── app.py              # Flask application factory & middleware
+├── config.py           # Multi-environment database configuration
+├── seed.py             # Automatic database seeding
+├── requirements.txt    # Python production dependencies
+└── vercel.json         # Vercel routing configuration
+```
+
+### 2. Vercel Dashboard Settings
+When importing your repository in Vercel:
+- **Framework Preset**: `Other`
+- **Root Directory**: Leave **BLANK** (`./`)
+- **Build & Output Settings**: Leave all toggles **OFF** (empty). Vercel installs dependencies automatically from `requirements.txt`.
+
+### 3. Database on Vercel
+- **Automatic Fallback (Zero Setup)**: The app runs out of the box using an auto-seeded SQLite database in `/tmp/scas.db`.
+- **Persistent Cloud Database (Recommended)**: To persist data across serverless container restarts, add a remote PostgreSQL (e.g., Neon, Supabase, Vercel Postgres) or MySQL (PlanetScale, Aiven) database connection in:
+  **Vercel Project Settings $\rightarrow$ Environment Variables**:
+  - `DATABASE_URL` or `POSTGRES_URL` = `postgresql://user:pass@host:5432/dbname?sslmode=require`
 
 ---
 
@@ -51,9 +86,9 @@ An enterprise-grade, role-based academic management and student performance anal
 
 ---
 
-## 🗄️ Database Architecture (MySQL)
+## 🗄️ Database Architecture
 
-The application utilizes **MySQL / MariaDB** database `scas_db` with relational constraints, foreign keys, and cascading deletes.
+The application utilizes relational constraints, foreign keys, and cascading deletes.
 
 ### Table Schema Summary:
 1. `scas_users`: System user credentials, email, role, and names.
@@ -72,39 +107,29 @@ The application utilizes **MySQL / MariaDB** database `scas_db` with relational 
 
 ---
 
-## 🚀 Setup & Execution Guide
+## 🚀 Local Setup & Execution Guide
 
 ### Prerequisites
 - Python 3.10+ (Python 3.12 recommended)
-- MySQL / MariaDB (e.g., via **XAMPP**, WampServer, or standalone MySQL service)
+- MySQL / MariaDB (e.g., via XAMPP, WampServer, or standalone MySQL service) or SQLite
 
-### 1. Configure Database Connection
-Ensure MySQL is running on `localhost:3306`. Connection credentials are configured in `.env`:
+### 1. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 2. Configure Database (Optional for MySQL)
+If using MySQL, configure credentials in `.env`:
 ```ini
 DATABASE_URL=mysql+pymysql://root:@localhost:3306/scas_db
 SECRET_KEY=smart_college_secret_key_129847
 ```
-*(The system automatically detects MySQL, creates `scas_db` if not present, and connects seamlessly).*
+*(If MySQL is not installed, the app automatically runs on local `scas.db` SQLite).*
 
-### 2. Install Dependencies
-```bash
-pip install -r requirements.txt
-pip install python-dotenv
-```
-
-### 3. Seed MySQL Database with Demo Data
-Run the database seeder to create all tables and populate realistic demonstration records:
-```bash
-python seed.py
-```
-*(Or double-click `setup_mysql.bat` on Windows)*
-
-### 4. Start the Application Server
+### 3. Start the Application Server
 ```bash
 python app.py
 ```
-*(Or double-click `run_server.bat` on Windows)*
-
 The application will be live at:
 👉 **[http://127.0.0.1:5000](http://127.0.0.1:5000)**
 
@@ -124,8 +149,7 @@ The application will be live at:
 
 ## 🧪 Automated Test Suite Verification
 
-Run the comprehensive unit test suite to verify all core workflows:
+Run the comprehensive test suite to verify all core workflows:
 ```bash
 python -m unittest verify_system.py
 ```
-**Results**: 100% tests pass (Authentication, RBAC access control, DB seeding, student creation, email dispatch, and grade calculations).

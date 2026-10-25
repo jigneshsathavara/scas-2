@@ -6,7 +6,7 @@ from models.models import db, User
 # Detect serverless environment
 is_serverless = bool(
     os.environ.get('VERCEL') or 
-    os.environ.get('V`ERCEL_ENV') or 
+    os.environ.get('VERCEL_ENV') or 
     os.environ.get('AWS_LAMBDA_FUNCTION_NAME') or 
     os.environ.get('LAMBDA_TASK_ROOT') or
     not os.access(os.path.dirname(os.path.abspath(__file__)), os.W_OK)
@@ -75,13 +75,9 @@ class VercelPathMiddleware:
 
     def __call__(self, environ, start_response):
         # Prefer original client path from Vercel edge proxy headers
-        forwarded_uri = (
-            environ.get('HTTP_X_FORWARDED_URI') or 
-            environ.get('HTTP_X_MATCHED_PATH') or
-            environ.get('HTTP_X_NOW_ROUTE_MATCHES')
-        )
-        if forwarded_uri:
-            environ['PATH_INFO'] = forwarded_uri.split('?')[0]
+        raw_uri = environ.get('HTTP_X_FORWARDED_URI') or environ.get('HTTP_X_MATCHED_PATH')
+        if raw_uri and raw_uri.startswith('/'):
+            environ['PATH_INFO'] = raw_uri.split('?')[0]
         else:
             path = environ.get('PATH_INFO', '')
             for prefix in ['/api/index.py', '/api/index', '/index.py']:
