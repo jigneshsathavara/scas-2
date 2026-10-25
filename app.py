@@ -6,7 +6,7 @@ from models.models import db, User
 # Detect serverless environment
 is_serverless = bool(
     os.environ.get('VERCEL') or 
-    os.environ.get('VERCEL_ENV') or 
+    os.environ.get('V`ERCEL_ENV') or 
     os.environ.get('AWS_LAMBDA_FUNCTION_NAME') or 
     os.environ.get('LAMBDA_TASK_ROOT') or
     not os.access(os.path.dirname(os.path.abspath(__file__)), os.W_OK)
